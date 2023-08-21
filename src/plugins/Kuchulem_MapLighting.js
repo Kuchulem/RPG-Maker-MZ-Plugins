@@ -29,6 +29,12 @@ Kuchulem.MapLighting = {
  *   - areas lighting : map areas can have their own lighting
  *   - light sources : sources of light that lighten a dark area
  *   - highlights : lighting that displays a bright colored light
+ * 
+ * @param dataFile
+ * @type string
+ * @default MapsLighting.json
+ * @text Data file name
+ * @desc The data file name that will define areas 
  */
 (() => {
     const pluginName = Kuchulem.MapLighting.pluginName;
@@ -1104,8 +1110,11 @@ Kuchulem.MapLighting = {
     }
     //#endregion
 
-    //#region data file
-    Kuchulem.registerDatabaseFile("$dataMapsLighting", "MapsLighting.json");
+    //#region data file registration
+    const parameters = PluginManager.parameters(pluginName);
+
+    const dataFile = String(parameters.dataFile);
+    Kuchulem.registerDatabaseFile("$dataMapsLighting", dataFile ?? "MapsLighting.json");
     //#endregion
 
     //#region Events

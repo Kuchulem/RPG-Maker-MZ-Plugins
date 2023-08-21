@@ -24,8 +24,8 @@ Kuchulem.Areas = {
  * 
  * @param dataFile
  * @type string
+ * @default Areas.json
  * @text Data file name
- * @default Areas.js
  * @desc The data file name that will define areas 
  */
 (() => {
@@ -244,11 +244,11 @@ Kuchulem.Areas = {
     }
     //#endregion
 
-    //#region Game object configuration
+    //#region data file registration
     const parameters = PluginManager.parameters(pluginName);
 
     const dataFile = String(parameters.dataFile);
-    Kuchulem.registerDatabaseFile("$dataAreas", dataFile);
+    Kuchulem.registerDatabaseFile("$dataAreas", dataFile ?? "Areas.json");
     //#endregion
 
     //#region Events
