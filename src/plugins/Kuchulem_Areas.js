@@ -22,74 +22,14 @@ Kuchulem.Areas = {
  * Areas may be combined to create a complex "meta area".
  * Areas are used in several plugins.
  * 
- * # Areas can be retrieved from the $gameMap object :
- * 
- * 1. | {Kuchulem.Areas.Area} area = $gameMap.area({number} areaId);
- * 
- * This returns a single area with the areaId.
- * 
- * 1. | {Kuchulem.Areas.Area[]} areas = $gameMap.namedArea({string} areaName);
- * 
- * This returns the areas sharing the same name.
- * 
- * # Areas where the player is located can also be retrieved from the $gameMap
- * object :
- * 
- * 1. | {Kuchulem.Areas.Area[]} areas = $gameMap.playerAreas();
- * 
- * This returns the areas with the same name when player is located in one of
- * them.
- * 
- * # Map areas can be retrieved all together :
- * 
- * 1. | {Kuchulem.Areas.Area[]} areas = $gameMap.areas();
+ * @param dataFile
+ * @type string
+ * @text Data file name
+ * @default Areas.js
+ * @desc The data file name that will define areas 
  */
 (() => {
     const pluginName = Kuchulem.Areas.pluginName;
-
-    //#region STRUCTS
-    /*~struct~area:
-    * 
-    * @param id
-    * @type number
-    * @min 1
-    * @text Area ID
-    * @desc The ID of the area. MUST be unique for the map.
-    * 
-    * @param name
-    * @type string
-    * @text Area name
-    * @desc The name of the area. If multiple areas share the same name in the map
-    *       they will be considered the same area and when the player will enter
-    *       any of them, all the areas sharing its name will be returned.
-    * 
-    * @param x
-    * @type number
-    * @text Area X coordinate
-    * @desc The X coordinate (horizontal) of the top left corner of the area.
-    *       The unit for the coordinates is the tile.
-    *       The top left tile of the map has the [0, 0] coordinates. 
-    * 
-    * @param y
-    * @type number
-    * @text Area Y coordinate
-    * @desc The Y coordinate (vertical) of the top left corner of the area.
-    *       The unit for the coordinates is the tile.
-    *       The top left tile of the map has the [0, 0] coordinates.
-    * 
-    * @param width
-    * @type number
-    * @text Area width
-    * @desc The width of the area.
-    *       The unit for the size is the tile.
-    * 
-    * @param height
-    * @type number
-    * @text Area height
-    * @desc The height of the area.
-    *       The unit for the size is the tile.
-    */
-    //#endregion
 
     //#region Kuchulem.Areas.Area class definition
     /**
@@ -304,8 +244,14 @@ Kuchulem.Areas = {
     }
     //#endregion
 
-    Kuchulem.registerDatabaseFile("$dataAreas", "Areas.json");
+    //#region Game object configuration
+    const parameters = PluginManager.parameters(pluginName);
 
+    const dataFile = String(parameters.dataFile);
+    Kuchulem.registerDatabaseFile("$dataAreas", dataFile);
+    //#endregion
+
+    //#region Events
     const loadAreas = function(map) {
         if (!!map._areas && map._areas.any()) {
             return;
@@ -326,4 +272,5 @@ Kuchulem.Areas = {
     }
 
     $eventsPublisher.on(Game_Map.events.afterSetup, Game_Map, loadAreas);
+    //#endregion
 })();
