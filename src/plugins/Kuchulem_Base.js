@@ -74,7 +74,6 @@ function Kuchulem() {
      * @param {boolean} addToSaves 
      */
     Kuchulem.createGameObject = function(name, obj, addToSaves) {
-        console.log(name, obj);
         window[name] = obj;
 
         if (addToSaves) {

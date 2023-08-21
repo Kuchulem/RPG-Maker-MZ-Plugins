@@ -4,7 +4,7 @@ if (!Kuchulem) {
 
 Kuchulem.Areas = {
     pluginName: "Kuchulem_Areas"
-}
+};
 
 /*:
  * @target MZ

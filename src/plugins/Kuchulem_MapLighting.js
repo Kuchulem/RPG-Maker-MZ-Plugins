@@ -168,7 +168,6 @@ Kuchulem.MapLighting = {
     }
 
     Sprite_Lights.prototype.updatePlayerLightPosition = function(playerLight) {
-        console.log(playerLight);
         if (!playerLight) {
             this._playerLightPosition = {
                 shouldDraw: false
