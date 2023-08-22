@@ -126,19 +126,6 @@ Kuchulem.Events = {
     }
 
     /**
-     * Registers a callback for an event
-     * 
-     * @param {string} eventName 
-     * @param {Object} publisherClass 
-     * @param {Function} callback 
-     */
-    Kuchulem.Events.Publisher.prototype.on = function(eventName, publisherClass, callback) {
-        this._subscribtions.push(
-            new Kuchulem.Events.Subscribtion(eventName, publisherClass, callback)
-        );
-    }
-
-    /**
      * Unregisters a callback for an event
      * 
      * @param {string} eventName 

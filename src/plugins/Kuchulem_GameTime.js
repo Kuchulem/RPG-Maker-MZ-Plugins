@@ -108,7 +108,7 @@ Kuchulem.GameTime = {
  * @command addHours
  * @text Add hours
  * @desc Will set the hours for the in-game time. Can add a negative number of hours
- *       to descrease the time. If the hours drops bellow 0 or rise above 23, the fays
+ *       to descrease the time. If the hours drops bellow 0 or rise above 23, the days
  *       will change accordingly. (Days bellow 1 will be set to 1, see `setDays` command)
  * 
  * @arg nbHours
@@ -128,10 +128,6 @@ Kuchulem.GameTime = {
  * @type number
  * @text Number of days
  * @desc The number of days to set
- * 
- * @command displayTimeSelection
- * @text Display time selection
- * @desc Displays an input window to change the time
  */
 
 Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
@@ -155,17 +151,31 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
 
     /**
      * The hours part of the time.
-     * 
-     * @returns {number}
+     *
+     * @readonly
+     * @type {number}
+     * @name Kuchulem.GameTime.Time#hours
      */
-    Kuchulem.GameTime.Time.prototype.hours = function() { return this._hours; }
+    Object.defineProperty(Kuchulem.GameTime.Time.prototype, "hours", {
+        get: function() {
+            return this._hours;
+        },
+        configurable: true
+    });
 
     /**
      * The minutes part of the time
-     * 
-     * @returns {number}
+     *
+     * @readonly
+     * @type {number}
+     * @name Kuchulem.GameTime.Time#minutes
      */
-    Kuchulem.GameTime.Time.prototype.minutes = function() { return this._minutes; }
+    Object.defineProperty(Kuchulem.GameTime.Time.prototype, "minutes", {
+        get: function() {
+            return this._minutes;
+        },
+        configurable: true
+    });
 
     /**
      * Converts the time to a number of minutes (for comparison)
@@ -174,27 +184,6 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      */
     Kuchulem.GameTime.Time.prototype.toMinutes = function() { 
         return this._hours * 60 + this._minutes;
-    }
-
-    /**
-     * Parse JSON data to a time object
-     * 
-     * @param {string} json 
-     * @returns {Kuchulem.GameTime.Time}
-     */
-    Kuchulem.GameTime.Time.fromJson = function(json) {
-        var parsed = JSON.parse(json);
-        return new Kuchulem.GameTime.Time(Number(parsed.hours), Number(parsed.minutes));
-    }
-
-    /**
-     * Parse array data to a time object
-     * 
-     * @param {number[]} time 
-     * @returns {Kuchulem.GameTime.Time}
-     */
-    Kuchulem.GameTime.Time.fromArray = function(time) {
-        return new Kuchulem.GameTime.Time(Number(time[0]), Number(time[1]));
     }
     //#endregion
 
@@ -251,13 +240,13 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      */
     Sprite_Clock.prototype.updateBitmap = function() {
         if (
-            this._days !== $gameClock.days() ||
-            this._hours !== $gameClock.hours() ||
-            this._minutes !== $gameClock.minutes()
+            this._days !== $gameClock.days ||
+            this._hours !== $gameClock.hours ||
+            this._minutes !== $gameClock.minutes
         ) {
-            this._days = $gameClock.days();
-            this._hours = $gameClock.hours();
-            this._minutes = $gameClock.minutes();
+            this._days = $gameClock.days;
+            this._hours = $gameClock.hours;
+            this._minutes = $gameClock.minutes;
             this.redraw();
         }
     };
@@ -329,59 +318,92 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     }
 
     /**
-     * Gets the hours part of the time
-     * 
-     * @returns {number}
+     * The hours part of the Clock.
+     *
+     * @readonly
+     * @type {number}
+     * @name Kuchulem.GameTime.Clock#hours
      */
-    Kuchulem.GameTime.Clock.prototype.hours = function() { return this._hours; }
+    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "hours", {
+        get: function() {
+            return this._hours;
+        },
+        configurable: true
+    });
 
     /**
-     * Gets the minutes part of the time
-     * 
-     * @returns {number}
+     * The minutes part of the Clock
+     *
+     * @readonly
+     * @type {number}
+     * @name Kuchulem.GameTime.Clock#minutes
      */
-    Kuchulem.GameTime.Clock.prototype.minutes = function() { 
-        return parseInt(this._minutes / this._displaySpan) * this._displaySpan;
-    }
+    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "minutes", {
+        get: function() {
+            return parseInt(this._minutes / this._displaySpan) * this._displaySpan;
+        },
+        configurable: true
+    });
 
     /**
-     * Gets the days part of the time
-     * 
-     * @returns {number}
+     * The days part of the Clock.
+     *
+     * @readonly
+     * @type {number}
+     * @name Kuchulem.GameTime.Clock#days
      */
-    Kuchulem.GameTime.Clock.prototype.days = function() { return this._days; }
+    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "days", {
+        get: function() {
+            return this._days;
+        },
+        configurable: true
+    });
 
     /**
-     * Gets the time (hours and minutes spaned) of the day
+     * The frames per minutes configuration of the Clock.
+     *
+     * @readonly
+     * @type {number}
+     * @name Kuchulem.GameTime.Clock#framesPerMinute
+     */
+    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "framesPerMinute", {
+        get: function() {
+            return this._framesPerMinute;
+        },
+        configurable: true
+    });
+
+    /**
+     * True is the clock is paused.
+     *
+     * @readonly
+     * @type {number}
+     * @name Kuchulem.GameTime.Clock#paused
+     */
+    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "paused", {
+        get: function() {
+            return this._paused;
+        },
+        configurable: true
+    });
+
+    /**
+     * Gets the time  of the day
      * 
      * @returns {Kuchulem.GameTime.Time}
      */
     Kuchulem.GameTime.Clock.prototype.time = function() { 
-        return new Kuchulem.GameTime.Time(this.hours(), this.minutes());
+        return new Kuchulem.GameTime.Time(this.hours, this.minutes);
     }
 
     /**
-     * Gets the time (hours and minutes) of the day
+     * Gets the real time of the day
      * 
      * @returns {Kuchulem.GameTime.Time}
      */
     Kuchulem.GameTime.Clock.prototype.realTime = function() { 
-        return new Kuchulem.GameTime.Time(this.hours(), this._minutes);
+        return new Kuchulem.GameTime.Time(this.hours, this._minutes);
     }
-
-    /**
-     * Gets the number of frames per in-game minutes
-     * 
-     * @returns {number}
-     */
-    Kuchulem.GameTime.Clock.prototype.framesPerMinute = function() { return this._framesPerMinute; }
-
-    /**
-     * Gets if the clock is paused
-     * 
-     * @returns {boolean}
-     */
-    Kuchulem.GameTime.Clock.prototype.paused = function() { return this._paused }
 
     /**
      * Sets the minutes part of the time
@@ -416,13 +438,13 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     /**
      * Sets the number of frames in one in-game minute
      * 
-     * @param {number} framesPerMinute 
+     * @param {number} nbFrames 
      */
-    Kuchulem.GameTime.Clock.prototype.setFramesPerMinute = function(framesPerMinute) {
-        if(framesPerMinute < 1) {
-            throw ["InvalidFrames", this, `${framesPerMinute} is an invalid number of frames (should be greater than 0)`]
+    Kuchulem.GameTime.Clock.prototype.setFramesPerMinute = function(nbFrames) {
+        if(nbFrames < 1) {
+            throw ["InvalidFrames", this, `${nbFrames} is an invalid number of frames (should be greater than 0)`]
         }
-        this._framesPerMinute = framesPerMinute;
+        this._framesPerMinute = nbFrames;
     }
 
     /**

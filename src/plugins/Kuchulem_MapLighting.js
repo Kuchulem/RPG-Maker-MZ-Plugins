@@ -952,7 +952,7 @@ Kuchulem.MapLighting = {
 
         const global = (mapLightingConfig.global ?? []).map(l => 
             new Kuchulem.MapLighting.LightStep(
-                Kuchulem.GameTime.Time.fromArray(l.time),
+                new Kuchulem.GameTime.Time(l.time[0], l.time[1]),
                 Kuchulem.MapLighting.Color.fromArray(l.color),
             )
         );
@@ -961,7 +961,7 @@ Kuchulem.MapLighting = {
 
         (mapLightingConfig.areas ?? []).forEach(al => areas[al.areaName] = al.steps.map(l => 
             new Kuchulem.MapLighting.LightStep(
-                Kuchulem.GameTime.Time.fromArray(l.time),
+                new Kuchulem.GameTime.Time(l.time[0], l.time[1]),
                 Kuchulem.MapLighting.Color.fromArray(l.color),
             )
         ));
@@ -1019,7 +1019,7 @@ Kuchulem.MapLighting = {
      * @returns {Kuchulem.MapLighting.Color}
      */
     Kuchulem.MapLighting.calculateFrameColorChange = function(previousStep, nextStep) {
-        const nbFrames = (nextStep.time().toMinutes() - previousStep.time().toMinutes()) * $gameClock.framesPerMinute();
+        const nbFrames = (nextStep.time().toMinutes() - previousStep.time().toMinutes()) * $gameClock.framesPerMinute;
 
         return [
             parseFloat((nextStep.color().red() - previousStep.color().red()) / nbFrames),
@@ -1078,7 +1078,7 @@ Kuchulem.MapLighting = {
         return sortedSteps.last(s => s.time().toMinutes() <= time.toMinutes()) ??
             new Kuchulem.MapLighting.LightStep(
                 new Kuchulem.GameTime.Time(
-                    lastStep.time().hours() - 24, lastStep.time().minutes()), 
+                    lastStep.time().hours - 24, lastStep.time().minutes), 
                     lastStep.color()
             );
     }
@@ -1095,7 +1095,7 @@ Kuchulem.MapLighting = {
         return sortedSteps.first(s => s.time().toMinutes() > time.toMinutes()) ??
             new Kuchulem.MapLighting.LightStep(
                 new Kuchulem.GameTime.Time(
-                    firstStep.time().hours() + 24, firstStep.time().minutes()), 
+                    firstStep.time().hours + 24, firstStep.time().minutes), 
                 firstStep.color()
             );
     }
