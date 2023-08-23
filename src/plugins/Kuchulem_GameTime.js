@@ -457,7 +457,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * @param {number} displaySpan 
      */
     Kuchulem.GameTime.Clock.prototype.setDisplaySpan = function(displaySpan) {
-        this._displaySpan = displaySpan;
+        this._displaySpan = displaySpan > 0 ? displaySpan : 1;
     }
 
     /**
