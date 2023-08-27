@@ -1,5 +1,5 @@
 if (!Kuchulem) {
-    throw new Error("Kuchulem_Events requires Kuchulem_Base plugin to be loaded first");
+    throw new Error("Kuchulem_Npcs requires Kuchulem_Base plugin to be loaded first");
 }
 
 Kuchulem.Npcs = {
@@ -314,6 +314,15 @@ Kuchulem.Npcs = {
         if (this._pageIndex > 0 && this._npc) {
             this.setImage(this._npc.characterName, this._npc.characterIndex);
         }
+    }
+
+    /**
+     * Gets the NPC associated to that event, if any, null otherwise.
+     * 
+     * @returns {Kuchulem.Npcs.Npc}
+     */
+    Game_Event.prototype.npc = function() {
+        return this._npc ?? null;
     }
     //#region 
 
