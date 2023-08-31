@@ -22,11 +22,18 @@ git clone git@github.com:Kuchulem/RPG-Maker-MZ-Plugins.git
 
 As of now the following plugins are developped
 
-| Plugin name              | description                                                                  |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| Kuchulem_Areas           | Define areas in a map, used by several plugins                               |
-| Kuchulem_ArrayExtensions | Adds methods to the array prototype                                          |
-| Kuchulem_Base            | Methods to include game objects and JSON file database in the RPG Maker core |
-| Kuchulem_Events          | Adds an event manager game object to trigger methods on core events          |
-| Kuchulem_GameTime        | Adds in-game time                                                            |
-| Kuchulem_MapLighting     | Define map lighting with global lighting, areas light, light source, etc.    |
+| Plugin name              | description                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| Kuchulem_Areas           | Define areas in a map, used by several plugins                                   |
+| Kuchulem_ArrayExtensions | Adds methods to the array prototype                                              |
+| Kuchulem_Base            | Methods to include game objects and JSON file database in the RPG Maker core     |
+| Kuchulem_Convos          | Provides commands to set or unset an NPC as default speaker in the calling event |
+| Kuchulem_Events          | Adds an event manager game object to trigger methods on core events              |
+| Kuchulem_GameTime        | Adds in-game time                                                                |
+| Kuchulem_MapLighting     | Define map lighting with global lighting, areas light, light source, etc.        |
+| Kuchulem_Npcs            | Define NPCs with a data file and associate them to events with commands          |
+
+## Documentation
+
+The documentation for plugins and more can be found in this repository's 
+[wiki](https://github.com/Kuchulem/RPG-Maker-MZ-Plugins/wiki).
