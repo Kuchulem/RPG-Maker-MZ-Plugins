@@ -1,0 +1,38 @@
+[
+    {
+        "mapId": 2,
+        "playerLight": {  "shape": "circle", "width": 5, "height": 6, "color": [255, 160, 80, 0.3], "switch": 4 },
+        "playerSight" : 6,
+        "global": [
+            { "time": [6, 0], "color": [5, 0, 20, 0.9] },
+            { "time": [6, 30], "color": [5, 0, 20, 0.2] },
+            { "time": [8, 0], "color": [168, 168, 120, 0.2] },
+            { "time": [9, 30], "color": [255, 255, 255, 0] },
+            { "time": [18, 30], "color": [255, 255, 255, 0] },
+            { "time": [20, 30], "color": [120, 120, 168, 0.2] },
+            { "time": [22, 0], "color": [5, 0, 20, 0.8] }
+        ],
+        "areas": [],
+        "lightSources": [
+            { 
+                "name": "streetLamp1", 
+                "x" : 0.5, "y": 4.5, 
+                "shape": "circle", 
+                "width": 5, "height": 5, 
+                "color": [255, 255, 200, 0.9], 
+                "switch": 1
+            },
+            { 
+                "name": "streetLamp2", 
+                "x" : 7.5, "y": 10.5, 
+                "shape": "circle", 
+                "width": 5, "height": 5, 
+                "color": [255, 255, 200, 0.9], 
+                "switch": 1
+            }
+        ],
+        "highlights": [
+            { "name": "girlComputer", "x" : 5.8, "y": 8, "shape": "circle", "width": 1, "height": 1, "color": [0, 255, 255, 0.2], "switch": 1 }
+        ]
+    }
+]
