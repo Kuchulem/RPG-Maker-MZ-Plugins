@@ -111,7 +111,6 @@ Kuchulem.MapLighting = {
     Sprite_Lights.prototype.updatePosition = function() {
         this.x = 0;
         this.y = 0;
-        this._shouldUpdate = false;
         $gameMap.areas().forEach(a => {
             this.updateAreaPosition(a);
         });
@@ -270,7 +269,6 @@ Kuchulem.MapLighting = {
     Sprite_Lights.prototype.drawLightSource = function(lightSource) {
 
         const fixedPosition = this._lightSourcesPositions[lightSource.name];
-        console.log(fixedPosition);
 
         if (!fixedPosition.shouldDraw) {
             return;
@@ -339,7 +337,7 @@ Kuchulem.MapLighting = {
                 );
                 break;
             case "circle":
-                const centerX = position.x + (position.width / 2);
+                const centerX = position.x + position.width / 2;
                 const centerY = position.y + position.width / 2;
                 var area = $gameMap.areas().first(a => a.isInside(centerX / 48, centerY / 48));
                 if (!!area) {
@@ -933,7 +931,8 @@ Kuchulem.MapLighting = {
         this.initialize(...arguments);
     }
 
-    Kuchulem.MapLighting.Lighting.prototype.initialize = function(globalLighting, areasLighting, playerLight, playerSight, lightSources, highlights) {
+    Kuchulem.MapLighting.Lighting.prototype.initialize = function(mapId, globalLighting, areasLighting, playerLight, playerSight, lightSources, highlights) {
+        this._mapId = mapId;
         this._globalLighting = globalLighting ?? [];
         this._areasLighting = areasLighting ?? {};
         this._lightSources = lightSources ?? [];
@@ -941,6 +940,8 @@ Kuchulem.MapLighting = {
         this._playerLight = playerLight ?? null;
         this._playerSight = playerSight ?? null;
     }
+
+    Kuchulem.MapLighting.Lighting.prototype.mapId = function() { return this._mapId; };
 
     Kuchulem.MapLighting.Lighting.prototype.global = function() { return this._globalLighting; };
 
@@ -1014,7 +1015,7 @@ Kuchulem.MapLighting = {
         const playerSight = mapLightingConfig.playerSight;
 
         return new Kuchulem.MapLighting.Lighting(
-            global, areas, playerLight, playerSight, lightSources, highlights
+            mapId, global, areas, playerLight, playerSight, lightSources, highlights
         )
     }
     //#endregion
@@ -1116,7 +1117,7 @@ Kuchulem.MapLighting = {
      * Gets the map lighting configuration
      */
     Game_Map.prototype.lighting = function() {
-        if (!this._lighting) {
+        if (!this._lighting || this._lighting.mapId() != this.mapId()) {
             this._lighting = Kuchulem.MapLighting.Lighting.load(this.mapId());
         }
 
