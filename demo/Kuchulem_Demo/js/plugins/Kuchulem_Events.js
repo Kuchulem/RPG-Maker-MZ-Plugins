@@ -54,12 +54,14 @@ Kuchulem.Events = {
      * @param {*} publisher 
      * @param {string} type 
      * @param {Function} callback 
+     * @param {any} thisArg
      */
-    Kuchulem.Events.Subscribtion.prototype.initialize = function(eventName, publisher, type, callback) {
+    Kuchulem.Events.Subscribtion.prototype.initialize = function(eventName, publisher, type, callback, thisArg) {
         this._eventName = eventName;
         this._publisher = publisher;
         this._type = ["global", "switch", "variable"].includes(type) ? type : "global";
         this._callback = callback;
+        this._thisArg = thisArg;
     }
 
     /**
@@ -117,6 +119,20 @@ Kuchulem.Events = {
         },
         configurable: true
     });
+
+    /**
+     * The thisArg of publisher
+     *
+     * @readonly
+     * @type any
+     * @name Kuchulem.Events.Subscribtion#thisArg
+     */
+    Object.defineProperty(Kuchulem.Events.Subscribtion.prototype, "thisArg", {
+        get: function() {
+            return this._thisArg
+        },
+        configurable: true
+    });
     //#endregion	
 
     //#region Kuchulem.Events.Publisher class definition
@@ -140,9 +156,9 @@ Kuchulem.Events = {
      * @param {Object} publisher 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Publisher.prototype.on = function(eventName, publisher, callback) {
+    Kuchulem.Events.Publisher.prototype.on = function(eventName, publisher, callback, thisArg) {
         this._subscribtions.global.push(
-            new Kuchulem.Events.Subscribtion(eventName, publisher, "global", callback)
+            new Kuchulem.Events.Subscribtion(eventName, publisher, "global", callback, thisArg)
         );
     }
 
@@ -162,8 +178,8 @@ Kuchulem.Events = {
         );
 
         toRemove.forEach(t => {
-            const index = publisher._subscribtions.global.indexOf(t);
-            publisher._subscribtions.global.splice(index, 1)
+            const index = this._subscribtions.global.indexOf(t);
+            this._subscribtions.global.splice(index, 1)
         });
     }
 
@@ -181,12 +197,13 @@ Kuchulem.Events = {
      * @param {number} switchId 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Publisher.onSwitchEvent = function(eventName, switchId, callback) {
+    Kuchulem.Events.Publisher.onSwitchEvent = function(eventName, switchId, callback, thisArg) {
         this._subscribtions.switches.push( new Kuchulem.Events.Subscribtion(
             eventName,
             switchId,
             "switch",
-            callback
+            callback,
+            thisArg
         ));
     }
 
@@ -222,7 +239,7 @@ Kuchulem.Events = {
         this._subscribtions.global.filter(
             s => s.eventName === eventName && publisher instanceof s.publisher
         ).forEach(
-            s => s.callback(publisher)
+            s => s.thisArg ? s.callback.call(s.thisArg, publisher) : s.callback(publisher)
         );
     }
 
@@ -237,7 +254,7 @@ Kuchulem.Events = {
         this._subscribtions.switches.filter(
             s => s.eventName === eventName && s.publisher === switchId
         ).forEach(
-            s => s.callback(publisher, oldValue, newValue)
+            s => s.thisArg ? s.callback.call(s.thisArg, publisher) : s.callback(publisher)
         );
     }
     //#endregion
