@@ -65,7 +65,9 @@ Kuchulem.MapLighting = {
         this._highlightsPositions = {};
         this._playerSightPosition = {};
         this._playerLightPosition = {};
-        $eventsPublisher.on(Kuchulem.GameTime.Clock.events.updated, Kuchulem.GameTime.Clock, this._resetLighting);
+        this._globalColor = null;
+        this._areaColors = [];
+        $eventsPublisher.on(Kuchulem.GameTime.Clock.events.updated, Kuchulem.GameTime.Clock, this._resetLighting, this);
         this.createBitmap();
         this.update();
     };
@@ -126,11 +128,11 @@ Kuchulem.MapLighting = {
     Sprite_Lights.prototype.getFixedPosition = function(x, y, width, height, shouldDraw = true) {
         const fixedX = (x - $gameMap.displayX()) * 48;
         const fixedY = (y - $gameMap.displayY()) * 48;
-        const fixedWidth = width * 48 + (fixedX < 0 ? fixedX : 0);
-        const fixedHeight = height * 48 + (fixedY < 0 ? fixedY : 0);
+        const fixedWidth = width * 48;
+        const fixedHeight = height * 48;
         return {
-            x: fixedX < 0 ? 0 : fixedX,
-            y: fixedY < 0 ? 0 : fixedY,
+            x: fixedX,
+            y: fixedY,
             width: fixedWidth,
             height: fixedHeight,
             shouldDraw: shouldDraw && (fixedX + fixedWidth) > 0 && (fixedY + fixedHeight > 0)
@@ -147,7 +149,7 @@ Kuchulem.MapLighting = {
 
     Sprite_Lights.prototype.updateLightSourcePosition = function(lightSource) {
         this._lightSourcesPositions[lightSource.name] = this.getFixedPosition(
-            lightSource.x, lightSource.y,
+            lightSource.x + 0.5 - lightSource.width / 2, lightSource.y + 0.5 - lightSource.height / 2,
             lightSource.width, lightSource.height,
             lightSource.isOn
         );
@@ -155,7 +157,7 @@ Kuchulem.MapLighting = {
 
     Sprite_Lights.prototype.updateHighlightPosition = function(highlight) {
         this._highlightsPositions[highlight.name] = this.getFixedPosition(
-            highlight.x, highlight.y,
+            highlight.x + 0.5 - highlight.width / 2, highlight.y + 0.5 - highlight.height / 2,
             highlight.width, highlight.height,
             highlight.isOn
         );
@@ -268,6 +270,7 @@ Kuchulem.MapLighting = {
     Sprite_Lights.prototype.drawLightSource = function(lightSource) {
 
         const fixedPosition = this._lightSourcesPositions[lightSource.name];
+        console.log(fixedPosition);
 
         if (!fixedPosition.shouldDraw) {
             return;
@@ -1060,7 +1063,6 @@ Kuchulem.MapLighting = {
 
         const previousStep = Kuchulem.MapLighting.getPreviousStep(time, sortedSteps);
         const nextStep = Kuchulem.MapLighting.getNextStep(time, sortedSteps);
-        console.log(previousStep, nextStep);
         if (!previousColor) {
             previousColor = previousStep.color();
         }

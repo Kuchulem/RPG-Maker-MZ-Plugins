@@ -128,6 +128,24 @@ Kuchulem.GameTime = {
  * @type number
  * @text Number of days
  * @desc The number of days to set
+ * 
+ * @command setTime
+ * @text Set time
+ * @desc Sets the time of the day
+ * 
+ * @arg hours
+ * @type number
+ * @min 0
+ * @max 23
+ * @text Hours
+ * @desc The hours part of the time to set
+ * 
+ * @arg minutes
+ * @type number
+ * @min 0
+ * @max 59
+ * @text Minutes
+ * @desc The minutes part of the time to set
  */
 
 Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
@@ -426,6 +444,18 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     }
 
     /**
+     * Sets the hours part of the time
+     * 
+     * @param {Kuchulem.GameTime.Time} time 
+     */
+    Kuchulem.GameTime.Clock.prototype.setTime = function(hours, minutes) {
+        this._hours = 0;
+        this._minutes = 0;
+        this.addMinutes(minutes);
+        this.addHours(hours);
+    }
+
+    /**
      * Sets the days part of the time
      * 
      * @param {number} days 
@@ -702,6 +732,13 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "addDays", (args) => {
         const days = Number(args.nbDays);
         $gameClock.addDays(days);
+        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+    });
+
+    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "setTime", (args) => {
+        const hours = Number(args.hours);
+        const minutes = Number(args.minutes);
+        $gameClock.setTime(hours.clamp(0, 23), minutes.clamp(0, 59));
         $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
     });
     //#endregion
