@@ -2,12 +2,6 @@ if (!Kuchulem) {
     throw new Error("Kuchulem_Convos requires Kuchulem_Base plugin to be loaded first");
 }
 
-Kuchulem.Convos = {
-    pluginName: "Kuchulem_Convos"
-};
-
-const speaker = null;
-
 /*:
  * @target MZ
  * @plugindesc Relies on Kuchulem_Npcs plugin to change conversations images.
@@ -27,7 +21,7 @@ const speaker = null;
  *       configuration will be displayed.
  */
 (() => {
-    const pluginName = Kuchulem.Convos.pluginName;
+    const pluginName = "Kuchulem_Convos";
 
     const Game_Interpreter_command101_base = Game_Interpreter.prototype.command101;
     Game_Interpreter.prototype.command101 = function(params) {
@@ -38,7 +32,7 @@ const speaker = null;
             params[1] = npcSpeaker.faceIndex;
             params[4] = npcSpeaker.firstName + ' ' + npcSpeaker.lastName;
         }
-        Game_Interpreter_command101_base.call(this, params);
+        return Game_Interpreter_command101_base.call(this, params);
     }
 
     /**

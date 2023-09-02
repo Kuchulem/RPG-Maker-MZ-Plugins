@@ -2,10 +2,6 @@ if (!Kuchulem) {
     throw new Error("Kuchulem_MapLighting requires Kuchulem plugin to be loaded first");
 }
 
-Kuchulem.MapLighting = {
-    pluginName: "Kuchulem_MapLighting"
-};
-
 /*:
  * @target MZ
  * @plugindesc Manages lightings in a map.
@@ -34,10 +30,19 @@ Kuchulem.MapLighting = {
  * @type string
  * @default MapsLighting.json
  * @text Data file name
- * @desc The data file name that will define areas 
+ * @desc The data file name that will define areas
+ * 
+ * @command setLightSource
+ * @text Set light source
+ * @desc Sets a lightsource and an highlight on this event location. Once set
+ *       the light wont move, even if the event moves.
+ * 
+ * @arg 
  */
 (() => {
-    const pluginName = Kuchulem.MapLighting.pluginName;
+    const Kuchulem_MapLighting = {};
+
+    const pluginName = "Kuchulem_MapLighting";
 
     //#region Sprite_Light class definition
     /**
@@ -67,7 +72,7 @@ Kuchulem.MapLighting = {
         this._playerLightPosition = {};
         this._globalColor = null;
         this._areaColors = [];
-        $eventsPublisher.on(Kuchulem.GameTime.Clock.events.updated, Kuchulem.GameTime.Clock, this._resetLighting, this);
+        $eventsPublisher.on(Kuchulem_GameTime_Clock.events.updated, Kuchulem_GameTime_Clock, this._resetLighting, this);
         this.createBitmap();
         this.update();
     };
@@ -83,7 +88,7 @@ Kuchulem.MapLighting = {
      * @param {*} options 
      */
     Sprite_Lights.prototype.destroy = function(options) {
-        $eventsPublisher.off(Kuchulem.GameTime.Clock.events.updated, Kuchulem.GameTime.Clock, this._resetLighting);
+        $eventsPublisher.off(Kuchulem_GameTime_Clock.events.updated, Kuchulem_GameTime_Clock, this._resetLighting);
         this.bitmap.destroy();
         Sprite.prototype.destroy.call(this, options);
     };
@@ -111,9 +116,6 @@ Kuchulem.MapLighting = {
     Sprite_Lights.prototype.updatePosition = function() {
         this.x = 0;
         this.y = 0;
-        $gameMap.areas().forEach(a => {
-            this.updateAreaPosition(a);
-        });
         $gameMap.lighting().lightSources().forEach(ls => 
             this.updateLightSourcePosition(ls)
         );
@@ -136,14 +138,6 @@ Kuchulem.MapLighting = {
             height: fixedHeight,
             shouldDraw: shouldDraw && (fixedX + fixedWidth) > 0 && (fixedY + fixedHeight > 0)
         }
-    }
-
-    Sprite_Lights.prototype.updateAreaPosition = function(area) {
-        this._areasPositions[area.id] = this.getFixedPosition(
-            area.x, area.y, 
-            area.width, area.height,
-            !!$gameMap.lighting().area(area.name)
-        );
     }
 
     Sprite_Lights.prototype.updateLightSourcePosition = function(lightSource) {
@@ -206,65 +200,28 @@ Kuchulem.MapLighting = {
      */
     Sprite_Lights.prototype.updateBitmap = function() {
         this.bitmap.clear();
-        this._globalColor = Kuchulem.MapLighting.getFrameColor($gameMap.lighting().global(), this._globalColor);
+        this._globalColor = Kuchulem_MapLighting.getFrameColor($gameMap.lighting().global(), this._globalColor);
         if (this._globalColor) {
             this.bitmap.fillAll(this._globalColor.toRgba());
         }
         if ($gameMap.lighting().playerSight()) {
             this.drawPlayerSight();
         }
-        // $gameMap.areas().forEach(a => {
-        //     this.drawArea(a);
-        // });
         $gameMap.lighting().lightSources().forEach(ls => {
             this.drawLightSource(ls);
-        });
-        $gameMap.lighting().highlights().forEach(ls => {
-            this.drawHighlight(ls);
         });
         if ($gameMap.lighting().playerLight()) {
             this.drawPlayerLight();
         }
-    };
-
-    /**
-     * Clears a map area place in the overlay and fills it with the lightmap of the
-     * area
-     * 
-     * @param {Kuchulem.Areas.Area} area 
-     * @returns 
-     */
-    Sprite_Lights.prototype.drawArea = function(area) {
-        this._areaColors = this._areaColors ?? [];
-        
-        if (!this._areasPositions[area.id] || !this._areasPositions[area.id].shouldDraw) {
-            return;
-        }
-
-        this._areaColors[area.name] = Kuchulem.MapLighting.getFrameColor(
-            $gameMap.lighting().area(area.name),
-            this._areaColors[area.name]
-        );
-        
-        if(!this._areaColors[area.name]) {
-            return;
-        }
-
-        this.bitmap.clearRect(
-            this._areasPositions[area.id].x, this._areasPositions[area.id].y, 
-            this._areasPositions[area.id].width, this._areasPositions[area.id].height
-        );
-        this.bitmap.fillRect(
-            this._areasPositions[area.id].x, this._areasPositions[area.id].y, 
-            this._areasPositions[area.id].width, this._areasPositions[area.id].height,
-            this._areaColors[area.name].toRgba()
-        );
+        $gameMap.lighting().highlights().forEach(ls => {
+            this.drawHighlight(ls);
+        });
     };
 
     /**
      * Draws a light source on the sprite
      * 
-     * @param {Kuchulem.MapLighting.LightSource} lightSource 
+     * @param {Kuchulem_MapLighting_LightSource} lightSource 
      */
     Sprite_Lights.prototype.drawLightSource = function(lightSource) {
 
@@ -280,7 +237,7 @@ Kuchulem.MapLighting = {
     /**
      * Draws a highlight on the sprite
      * 
-     * @param {Kuchulem.MapLighting.Highligh} highlight 
+     * @param {Kuchulem_MapLighting_LightSource} highlight 
      */
     Sprite_Lights.prototype.drawHighlight = function(highlight) {
 
@@ -298,7 +255,7 @@ Kuchulem.MapLighting = {
             return;
         }
         
-        const color = new Kuchulem.MapLighting.Color(0, 0, 0, .2);
+        const color = new Kuchulem_MapLighting_Color(0, 0, 0, .2);
 
         this.drawLight(this._playerSightPosition, color, "circle", "destination-out");
     }
@@ -308,7 +265,7 @@ Kuchulem.MapLighting = {
             return;
         }
         
-        const color = new Kuchulem.MapLighting.Color(0, 0, 0, .8);
+        const color = new Kuchulem_MapLighting_Color(0, 0, 0, .8);
 
         const light = $gameMap.lighting().playerLight();
         this.drawLight(this._playerLightPosition, color, "circle", "destination-out");
@@ -318,7 +275,7 @@ Kuchulem.MapLighting = {
     /**
      * Draws a light source on the sprite
      * 
-     * @param {Kuchulem.MapLighting.LightSource} lightSource 
+     * @param {Kuchulem_MapLighting_LightSource} lightSource 
      */
     Sprite_Lights.prototype.drawLight = function(position, color, shape, operation="destination-out") {
 
@@ -386,7 +343,7 @@ Kuchulem.MapLighting = {
     }
     //#endregion
 
-    //#region Kuchulem.MapLighting.Color class definition
+    //#region Kuchulem_MapLighting_Color class definition
     /**
      * Represents a color 
      * 
@@ -397,7 +354,7 @@ Kuchulem.MapLighting = {
      * @param {number} blue 
      * @param {number} alpha 
      */
-    Kuchulem.MapLighting.Color = function(red = 0, green = 0, blue = 0, alpha = 0) {
+    function Kuchulem_MapLighting_Color(red = 0, green = 0, blue = 0, alpha = 0) {
         if (
             red <= 255 && red >= 0 &&
             green <= 255 && green >= 0 &&
@@ -418,35 +375,35 @@ Kuchulem.MapLighting = {
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Color.prototype.red = function() { return this._red; }
+    Kuchulem_MapLighting_Color.prototype.red = function() { return this._red; }
 
     /**
      * The amount of green in the color
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Color.prototype.green = function() { return this._green; }
+    Kuchulem_MapLighting_Color.prototype.green = function() { return this._green; }
 
     /**
      * The amount of blue in the color
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Color.prototype.blue = function() { return this._blue; }
+    Kuchulem_MapLighting_Color.prototype.blue = function() { return this._blue; }
 
     /**
      * The alpha channel in the color
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Color.prototype.alpha = function() { return this._alpha; }
+    Kuchulem_MapLighting_Color.prototype.alpha = function() { return this._alpha; }
 
     /**
      * Converts the color object to an array usable by $gameScreen.startTint
      * 
      * @returns {Array}
      */
-    Kuchulem.MapLighting.Color.prototype.toArray = function() {
+    Kuchulem_MapLighting_Color.prototype.toArray = function() {
         return [this._red, this._green, this._blue, this._alpha];
     }
 
@@ -455,7 +412,7 @@ Kuchulem.MapLighting = {
      * 
      * @returns 
      */
-    Kuchulem.MapLighting.Color.prototype.toRgba = function(forcedAlpha = null) {
+    Kuchulem_MapLighting_Color.prototype.toRgba = function(forcedAlpha = null) {
         forcedAlpha = forcedAlpha === null ? this._alpha : forcedAlpha;
         return `rgba(${parseInt(this._red)}, ${parseInt(this._green)}, ${parseInt(this._blue)}, ${forcedAlpha})`;
     }
@@ -465,7 +422,7 @@ Kuchulem.MapLighting = {
      * 
      * @returns 
      */
-    Kuchulem.MapLighting.Color.prototype.toRgb = function() {
+    Kuchulem_MapLighting_Color.prototype.toRgb = function() {
         return `rgb(${parseInt(this._red)}, ${parseInt(this._green)}, ${parseInt(this._blue)})`;
     }
 
@@ -473,10 +430,10 @@ Kuchulem.MapLighting = {
      * Parse JSON data to a Color object
      * 
      * @param {number[]} color 
-     * @returns {Kuchulem.MapLighting.Color}
+     * @returns {Kuchulem_MapLighting_Color}
      */
-    Kuchulem.MapLighting.Color.fromArray = function(color) {
-        return new Kuchulem.MapLighting.Color(
+    Kuchulem_MapLighting_Color.fromArray = function(color) {
+        return new Kuchulem_MapLighting_Color(
             Number(color[0]), 
             Number(color[1]), 
             Number(color[2]), 
@@ -485,7 +442,7 @@ Kuchulem.MapLighting = {
     }
     //#endregion 
 
-    //#region Kuchulem.MapLighting.Tone class definition
+    //#region Kuchulem_MapLighting_Tone class definition
     /**
      * Represents a tone, as a color modificator
      * 
@@ -496,7 +453,7 @@ Kuchulem.MapLighting = {
      * @param {number} blue 
      * @param {number} alpha 
      */
-    Kuchulem.MapLighting.Tone = function(red = 0, green = 0, blue = 0, alpha = 0) {
+    function Kuchulem_MapLighting_Tone(red = 0, green = 0, blue = 0, alpha = 0) {
         if (
             red <= 255 && red >= -255 &&
             green <= 255 && green >= -255 &&
@@ -517,51 +474,51 @@ Kuchulem.MapLighting = {
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Tone.prototype.red = function() { return this._red; }
+    Kuchulem_MapLighting_Tone.prototype.red = function() { return this._red; }
 
     /**
      * The amount of green in the tone
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Tone.prototype.green = function() { return this._green; }
+    Kuchulem_MapLighting_Tone.prototype.green = function() { return this._green; }
 
     /**
      * The amount of blue in the tone
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Tone.prototype.blue = function() { return this._blue; }
+    Kuchulem_MapLighting_Tone.prototype.blue = function() { return this._blue; }
 
     /**
      * The alpha channel in the tone
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.Tone.prototype.alpha = function() { return this._alpha; }
+    Kuchulem_MapLighting_Tone.prototype.alpha = function() { return this._alpha; }
 
     /**
      * Converts the tone object to an array usable by $gameScreen.startTint
      * 
      * @returns {Array}
      */
-    Kuchulem.MapLighting.Tone.prototype.toArray = function() {
+    Kuchulem_MapLighting_Tone.prototype.toArray = function() {
         return [this._red, this._green, this._blue, this._alpha];
     }
 
     /**
      * Applies the tone to a color and returns the resulting color
      * 
-     * @param {Kuchulem.MapLighting.Color} color
+     * @param {Kuchulem_MapLighting_Color} color
      * 
-     * @return {Kuchulem.MapLighting.Color}
+     * @return {Kuchulem_MapLighting_Color}
      */
-    Kuchulem.MapLighting.Tone.prototype.applyTo = function(color) {
-        if (!(color instanceof Kuchulem.MapLighting.Color)) {
+    Kuchulem_MapLighting_Tone.prototype.applyTo = function(color) {
+        if (!(color instanceof Kuchulem_MapLighting_Color)) {
             throw ["Not a color", color];
         }
 
-        return new Kuchulem.MapLighting.Color(
+        return new Kuchulem_MapLighting_Color(
             (backgroundColor.red() + this.red()).clamp(0, 255),
             (backgroundColor.green() + this.green()).clamp(0, 255),
             (backgroundColor.blue() + this.blue()).clamp(0, 255),
@@ -570,14 +527,14 @@ Kuchulem.MapLighting = {
     }
     //#endregion
 
-    //#region Kuchulem.MapLighting.LightSource class definition
+    //#region Kuchulem_MapLighting_LightSource class definition
     /**
      * Defines a light source
      * 
      * @class
      * @constructor
      */
-    Kuchulem.MapLighting.LightSource = function() {
+    function Kuchulem_MapLighting_LightSource() {
         this.initialize(...arguments);
     }
 
@@ -589,10 +546,10 @@ Kuchulem.MapLighting = {
      * @param {string} shape 
      * @param {number} width 
      * @param {number} height 
-     * @param {Kuchulem.MapLighting.Color} color,
+     * @param {Kuchulem_MapLighting_Color} color,
      * @param {number} switchId 
      */
-    Kuchulem.MapLighting.LightSource.prototype.initialize = function(
+    Kuchulem_MapLighting_LightSource.prototype.initialize = function(
         name,
         x, 
         y, 
@@ -620,9 +577,9 @@ Kuchulem.MapLighting = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.MapLighting.LightSource#name
+     * @name Kuchulem_MapLighting_LightSource#name
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "name", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "name", {
         get: function() {
             return this._name;
         },
@@ -634,9 +591,9 @@ Kuchulem.MapLighting = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.MapLighting.LightSource#x
+     * @name Kuchulem_MapLighting_LightSource#x
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "x", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "x", {
         get: function() {
             return this._x;
         },
@@ -648,9 +605,9 @@ Kuchulem.MapLighting = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.MapLighting.LightSource#y
+     * @name Kuchulem_MapLighting_LightSource#y
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "y", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "y", {
         get: function() {
             return this._y;
         },
@@ -662,9 +619,9 @@ Kuchulem.MapLighting = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.MapLighting.LightSource#shape
+     * @name Kuchulem_MapLighting_LightSource#shape
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "shape", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "shape", {
         get: function() {
             return this._shape;
         },
@@ -676,9 +633,9 @@ Kuchulem.MapLighting = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.MapLighting.LightSource#width
+     * @name Kuchulem_MapLighting_LightSource#width
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "width", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "width", {
         get: function() {
             return this._width;
         },
@@ -690,9 +647,9 @@ Kuchulem.MapLighting = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.MapLighting.LightSource#height
+     * @name Kuchulem_MapLighting_LightSource#height
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "height", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "height", {
         get: function() {
             return this._height;
         },
@@ -703,10 +660,10 @@ Kuchulem.MapLighting = {
      * The light source color
      *
      * @readonly
-     * @type {Kuchulem.MapLighting.Color}
-     * @name Kuchulem.MapLighting.LightSource#color
+     * @type {Kuchulem_MapLighting_Color}
+     * @name Kuchulem_MapLighting_LightSource#color
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "color", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "color", {
         get: function() {
             return this._color;
         },
@@ -718,191 +675,34 @@ Kuchulem.MapLighting = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.MapLighting.LightSource#isOn
+     * @name Kuchulem_MapLighting_LightSource#isOn
      */
-    Object.defineProperty(Kuchulem.MapLighting.LightSource.prototype, "isOn", {
+    Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "isOn", {
         get: function() {
+            console.log(!this._switchId || $gameSwitches.value(this._switchId));
             return !this._switchId || $gameSwitches.value(this._switchId);
         },
         configurable: true
     });
     //#endregion
 
-    //#region Kuchulem.MapLighting.Hightlight class definition
-    /**
-     * Defines a highlight in the map. A highligth is an area where the light tone
-     * is slightly changed. ie: light reflected on the ground from a window
-     * 
-     * @deprecated
-     * 
-     * @class
-     * @constructor
-     */
-    Kuchulem.MapLighting.Hightlight = function() {
-        this.initialize(...arguments);
-    }
-
-    /**
-     * Initializes the highlight
-     * 
-     * @param {string} name
-     * @param {number} x 
-     * @param {number} y 
-     * @param {string} shape 
-     * @param {number} width 
-     * @param {number} height 
-     * @param {Kuchulem.MapLighting.Color} tone,
-     * @param {number} switchId 
-     */
-    Kuchulem.MapLighting.Hightlight.prototype.initialize = function(
-        name,
-        x, 
-        y, 
-        shape, 
-        width,
-        height,
-        tone,
-        switchId
-    ) {
-        if (!["rectangle", "circle"].includes(shape)) {
-            throw ["InvalidShape", shape, "Invalid shape provided"];        
-        }
-        this._name = name;
-        this._x = x;
-        this._y = y;
-        this._shape = shape;
-        this._width = width;
-        this._height = height;
-        this._tone = tone;
-        this._switchId = switchId;
-    }
-
-    /**
-     * The highlight name
-     *
-     * @readonly
-     * @type {string}
-     * @name Kuchulem.MapLighting.Hightlight#name
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "name", {
-        get: function() {
-            return this._name;
-        },
-        configurable: true
-    });
-
-    /**
-     * The highlight X coordinate
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem.MapLighting.Hightlight#x
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "x", {
-        get: function() {
-            return this._x;
-        },
-        configurable: true
-    });
-
-    /**
-     * The highlight Y coordinate
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem.MapLighting.Hightlight#y
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "y", {
-        get: function() {
-            return this._y;
-        },
-        configurable: true
-    });
-
-    /**
-     * The highlight shape
-     *
-     * @readonly
-     * @type {string}
-     * @name Kuchulem.MapLighting.Hightlight#shape
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "shape", {
-        get: function() {
-            return this._shape;
-        },
-        configurable: true
-    });
-
-    /**
-     * The highlight width
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem.MapLighting.Hightlight#width
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "width", {
-        get: function() {
-            return this._width;
-        },
-        configurable: true
-    });
-
-    /**
-     * The highlight height
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem.MapLighting.Hightlight#height
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "height", {
-        get: function() {
-            return this._height;
-        },
-        configurable: true
-    });
-
-    /**
-     * The highlight color
-     *
-     * @readonly
-     * @type {Kuchulem.MapLighting.Tone}
-     * @name Kuchulem.MapLighting.Hightlight#tone
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "tone", {
-        get: function() {
-            return this._tone;
-        },
-        configurable: true
-    });
-
-    /**
-     * Wether the highlight is ON (lighted) or OFF (unlighted)
-     *
-     * @readonly
-     * @type {string}
-     * @name Kuchulem.MapLighting.Hightlight#isOn
-     */
-    Object.defineProperty(Kuchulem.MapLighting.Hightlight.prototype, "isOn", {
-        get: function() {
-            return !this._switchId || $gameSwitches.value(this._switchId);
-        },
-        configurable: true
-    });
-    //#endregion
-
-    //#region Kuchulem.MapLighting.LightStep class definition
+    //#region Kuchulem_MapLighting_LightStep class definition
     /**
      * Defines a light step. A light step is specific time of in-game time with
      * a specific lighting. The lighting will gradually evolve from one step to
      * another.
      * 
-     * @param {Kuchulem.GameTime.Time} time 
-     * @param {Kuchulem.MapLighting.Color} color 
+     * @param {Kuchulem_GameTime_Time} time 
+     * @param {Kuchulem_MapLighting_Color} color 
      */
-    Kuchulem.MapLighting.LightStep = function(time, color) {
+    function Kuchulem_MapLighting_LightStep() {
+        this.initialize(...arguments);
+    }
+
+    Kuchulem_MapLighting_LightStep.prototype.initialize = function(time, color) {
         if (
-            time instanceof Kuchulem.GameTime.Time &&
-            color instanceof Kuchulem.MapLighting.Color
+            time instanceof Kuchulem_GameTime_Time &&
+            color instanceof Kuchulem_MapLighting_Color
         ) {
             this._time = time;
             this._color = color;
@@ -916,106 +716,95 @@ Kuchulem.MapLighting = {
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.LightStep.prototype.time = function() { return this._time; }
+    Kuchulem_MapLighting_LightStep.prototype.time = function() { return this._time; }
 
     /**
      * Gets the color for that step
      * 
      * @returns {number}
      */
-    Kuchulem.MapLighting.LightStep.prototype.color = function() { return this._color; }
+    Kuchulem_MapLighting_LightStep.prototype.color = function() { return this._color; }
     //#endregion
 
-    //#region Kuchulem.MapLighting.Lighting prototype definition
-    Kuchulem.MapLighting.Lighting = function() {
+    //#region Kuchulem_MapLighting_Lighting prototype definition
+    /**
+     * Prototype to manage lighting in the map
+     */
+    function Kuchulem_MapLighting_Lighting() {
         this.initialize(...arguments);
     }
 
-    Kuchulem.MapLighting.Lighting.prototype.initialize = function(mapId, globalLighting, areasLighting, playerLight, playerSight, lightSources, highlights) {
+    Kuchulem_MapLighting_Lighting.prototype.initialize = function(mapId, globalLighting, playerLight, playerSight, lightSources, highlights) {
         this._mapId = mapId;
         this._globalLighting = globalLighting ?? [];
-        this._areasLighting = areasLighting ?? {};
         this._lightSources = lightSources ?? [];
         this._highlights = highlights ?? [];
         this._playerLight = playerLight ?? null;
         this._playerSight = playerSight ?? null;
     }
 
-    Kuchulem.MapLighting.Lighting.prototype.mapId = function() { return this._mapId; };
+    Kuchulem_MapLighting_Lighting.prototype.mapId = function() { return this._mapId; };
 
-    Kuchulem.MapLighting.Lighting.prototype.global = function() { return this._globalLighting; };
+    Kuchulem_MapLighting_Lighting.prototype.global = function() { return this._globalLighting; };
 
-    Kuchulem.MapLighting.Lighting.prototype.area = function(areaName) {
-        return this._areasLighting[areaName] ?? [];
-    }
+    Kuchulem_MapLighting_Lighting.prototype.lightSources = function() { return this._lightSources; };
 
-    Kuchulem.MapLighting.Lighting.prototype.lightSources = function() { return this._lightSources; };
+    Kuchulem_MapLighting_Lighting.prototype.highlights = function() { return this._highlights; };
+    Kuchulem_MapLighting_Lighting.prototype.playerLight = function() { return this._playerLight; };
+    Kuchulem_MapLighting_Lighting.prototype.playerSight = function() { return this._playerSight; };
 
-    Kuchulem.MapLighting.Lighting.prototype.highlights = function() { return this._highlights; };
-    Kuchulem.MapLighting.Lighting.prototype.playerLight = function() { return this._playerLight; };
-    Kuchulem.MapLighting.Lighting.prototype.playerSight = function() { return this._playerSight; };
-
-    Kuchulem.MapLighting.Lighting.load = function(mapId) {
+    Kuchulem_MapLighting_Lighting.load = function(mapId) {
         const mapLightingConfig = $dataMapsLighting.first(ml => ml.mapId === mapId);
         if (!mapLightingConfig) {
-            return new Kuchulem.MapLighting.Lighting();
+            return new Kuchulem_MapLighting_Lighting();
         }
 
         const global = (mapLightingConfig.global ?? []).map(l => 
-            new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(l.time[0], l.time[1]),
-                Kuchulem.MapLighting.Color.fromArray(l.color),
+            new Kuchulem_MapLighting_LightStep(
+                new Kuchulem_GameTime_Time(l.time[0], l.time[1]),
+                Kuchulem_MapLighting_Color.fromArray(l.color),
             )
         );
 
-        const areas = {};
-
-        (mapLightingConfig.areas ?? []).forEach(al => areas[al.areaName] = al.steps.map(l => 
-            new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(l.time[0], l.time[1]),
-                Kuchulem.MapLighting.Color.fromArray(l.color),
-            )
-        ));
-
         const lightSources = (mapLightingConfig.lightSources ?? []).map(ls => 
-            new Kuchulem.MapLighting.LightSource(
+            new Kuchulem_MapLighting_LightSource(
                 ls.name,
                 ls.x,
                 ls.y,
                 ls.shape,
                 ls.width,
                 ls.height,
-                Kuchulem.MapLighting.Color.fromArray(ls.color),
+                Kuchulem_MapLighting_Color.fromArray(ls.color),
                 ls.switch
             )
         );
 
         const highlights = (mapLightingConfig.highlights ?? []).map(hl =>
-            new Kuchulem.MapLighting.LightSource(
+            new Kuchulem_MapLighting_LightSource(
                 hl.name,
                 hl.x,
                 hl.y,
                 hl.shape,
                 hl.width,
                 hl.height,
-                Kuchulem.MapLighting.Color.fromArray(hl.color),
+                Kuchulem_MapLighting_Color.fromArray(hl.color),
                 hl.switch
             )
         );
 
-        const playerLight = new Kuchulem.MapLighting.LightSource(
+        const playerLight = new Kuchulem_MapLighting_LightSource(
             "player",
             0, 0,
             mapLightingConfig.playerLight.shape,
             mapLightingConfig.playerLight.width, mapLightingConfig.playerLight.height,
-            Kuchulem.MapLighting.Color.fromArray(mapLightingConfig.playerLight.color),
+            Kuchulem_MapLighting_Color.fromArray(mapLightingConfig.playerLight.color),
             mapLightingConfig.playerLight.switch
         );
 
         const playerSight = mapLightingConfig.playerSight;
 
-        return new Kuchulem.MapLighting.Lighting(
-            mapId, global, areas, playerLight, playerSight, lightSources, highlights
+        return new Kuchulem_MapLighting_Lighting(
+            mapId, global, playerLight, playerSight, lightSources, highlights
         )
     }
     //#endregion
@@ -1024,12 +813,12 @@ Kuchulem.MapLighting = {
     /**
      * Calculates the color for the provided time
      * 
-     * @param {Kuchulem.GameTime.Time} time 
-     * @param {Kuchulem.MapLighting.LightStep} previousStep 
-     * @param {Kuchulem.MapLighting.LightStep} nextStep 
-     * @returns {Kuchulem.MapLighting.Color}
+     * @param {Kuchulem_GameTime_Time} time 
+     * @param {Kuchulem_MapLighting_LightStep} previousStep 
+     * @param {Kuchulem_MapLighting_LightStep} nextStep 
+     * @returns {Kuchulem_MapLighting_Color}
      */
-    Kuchulem.MapLighting.calculateFrameColorChange = function(previousStep, nextStep) {
+    Kuchulem_MapLighting.calculateFrameColorChange = function(previousStep, nextStep) {
         const nbFrames = (nextStep.time().toMinutes() - previousStep.time().toMinutes()) * $gameClock.framesPerMinute;
 
         return [
@@ -1043,12 +832,12 @@ Kuchulem.MapLighting = {
     /**
      * Computes the color for the actual frame
      * 
-     * @param {Kuchulem.MapLighting.LightStep[]} steps 
-     * @param {Kuchulem.MapLighting.Color} previousColor 
+     * @param {Kuchulem_MapLighting_LightStep[]} steps 
+     * @param {Kuchulem_MapLighting_Color} previousColor 
      * 
-     * @return {Kuchulem.MapLighting.Color}
+     * @return {Kuchulem_MapLighting_Color}
      */
-    Kuchulem.MapLighting.getFrameColor = function(steps, previousColor) {
+    Kuchulem_MapLighting.getFrameColor = function(steps, previousColor) {
         const time = $gameClock.realTime();
         const sortedSteps = steps.sort((a, b) => a.time().toMinutes() - b.time().toMinutes());
 
@@ -1062,14 +851,14 @@ Kuchulem.MapLighting = {
             return currentStep.color();    
         }
 
-        const previousStep = Kuchulem.MapLighting.getPreviousStep(time, sortedSteps);
-        const nextStep = Kuchulem.MapLighting.getNextStep(time, sortedSteps);
+        const previousStep = Kuchulem_MapLighting.getPreviousStep(time, sortedSteps);
+        const nextStep = Kuchulem_MapLighting.getNextStep(time, sortedSteps);
         if (!previousColor) {
             previousColor = previousStep.color();
         }
-        var change = Kuchulem.MapLighting.calculateFrameColorChange(previousStep, nextStep);
+        var change = Kuchulem_MapLighting.calculateFrameColorChange(previousStep, nextStep);
 
-        return new Kuchulem.MapLighting.Color(
+        return new Kuchulem_MapLighting_Color(
             (previousColor.red() + change[0]).clamp(0, 255),
             (previousColor.green() + change[1]).clamp(0, 255),
             (previousColor.blue() + change[2]).clamp(0, 255),
@@ -1080,15 +869,15 @@ Kuchulem.MapLighting = {
     /**
      * Gets the previous light step from a list of steps
      * 
-     * @param {Kuchulem.GameTime.Time} time 
-     * @param {Kuchulem.MapLighting.LightStep[]} sortedSteps The light steps of the area, sorted by time
-     * @returns {Kuchulem.MapLighting.LightStep}
+     * @param {Kuchulem_GameTime_Time} time 
+     * @param {Kuchulem_MapLighting_LightStep[]} sortedSteps The light steps of the area, sorted by time
+     * @returns {Kuchulem_MapLighting_LightStep}
      */
-    Kuchulem.MapLighting.getPreviousStep = function(time, sortedSteps) {
+    Kuchulem_MapLighting.getPreviousStep = function(time, sortedSteps) {
         const lastStep = sortedSteps.last();
         return sortedSteps.last(s => s.time().toMinutes() <= time.toMinutes()) ??
-            new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(
+            new Kuchulem_MapLighting_LightStep(
+                new Kuchulem_GameTime_Time(
                     lastStep.time().hours - 24, lastStep.time().minutes), 
                     lastStep.color()
             );
@@ -1097,15 +886,15 @@ Kuchulem.MapLighting = {
     /**
      * Gets the next light step from a list of steps
      * 
-     * @param {Kuchulem.GameTime.Time} time The current in-game time
-     * @param {Kuchulem.MapLighting.LightStep[]} sortedSteps The light steps of the area, sorted by time
-     * @returns {Kuchulem.MapLighting.LightStep}
+     * @param {Kuchulem_GameTime_Time} time The current in-game time
+     * @param {Kuchulem_MapLighting_LightStep[]} sortedSteps The light steps of the area, sorted by time
+     * @returns {Kuchulem_MapLighting_LightStep}
      */
-    Kuchulem.MapLighting.getNextStep = function(time, sortedSteps) {
+    Kuchulem_MapLighting.getNextStep = function(time, sortedSteps) {
         const firstStep = sortedSteps.first();
         return sortedSteps.first(s => s.time().toMinutes() > time.toMinutes()) ??
-            new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(
+            new Kuchulem_MapLighting_LightStep(
+                new Kuchulem_GameTime_Time(
                     firstStep.time().hours + 24, firstStep.time().minutes), 
                 firstStep.color()
             );
@@ -1117,8 +906,8 @@ Kuchulem.MapLighting = {
      * Gets the map lighting configuration
      */
     Game_Map.prototype.lighting = function() {
-        if (!this._lighting || this._lighting.mapId() != this.mapId()) {
-            this._lighting = Kuchulem.MapLighting.Lighting.load(this.mapId());
+        if (!(this._lighting instanceof Kuchulem_MapLighting_Lighting) || this._lighting.mapId() != this.mapId()) {
+            this._lighting = Kuchulem_MapLighting_Lighting.load(this.mapId());
         }
 
         return this._lighting;
