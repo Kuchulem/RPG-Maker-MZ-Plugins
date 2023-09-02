@@ -1,8 +1,6 @@
 function Kuchulem() {
     throw new Error("This is a static class");
-};
-
-
+}
 
 /*:
  * @target MZ
@@ -45,6 +43,8 @@ function Kuchulem() {
  * a saved game, it will be loaded from the saved data
  */
 (() => {
+    const pluginName = "Kuchulem_Base";
+
     Kuchulem._gameObjectsToSave = [];
 
     /**
@@ -92,6 +92,8 @@ function Kuchulem() {
         Kuchulem._gameObjectsToSave.forEach(gameObject => {
             contents[gameObject] = window[gameObject];
         });
+
+        return contents;
     }
 
     /**

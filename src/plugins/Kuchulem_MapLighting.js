@@ -223,7 +223,7 @@ Kuchulem.MapLighting = {
      * Clears a map area place in the overlay and fills it with the lightmap of the
      * area
      * 
-     * @param {Kuchulem.Areas.Area} area 
+     * @param {Kuchulem_Areas_Area} area 
      * @returns 
      */
     Sprite_Lights.prototype.drawArea = function(area) {
@@ -888,12 +888,12 @@ Kuchulem.MapLighting = {
      * a specific lighting. The lighting will gradually evolve from one step to
      * another.
      * 
-     * @param {Kuchulem.GameTime.Time} time 
+     * @param {Kuchulem_GameTime_Time} time 
      * @param {Kuchulem.MapLighting.Color} color 
      */
     Kuchulem.MapLighting.LightStep = function(time, color) {
         if (
-            time instanceof Kuchulem.GameTime.Time &&
+            time instanceof Kuchulem_GameTime_Time &&
             color instanceof Kuchulem.MapLighting.Color
         ) {
             this._time = time;
@@ -952,7 +952,7 @@ Kuchulem.MapLighting = {
 
         const global = (mapLightingConfig.global ?? []).map(l => 
             new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(l.time[0], l.time[1]),
+                new Kuchulem_GameTime_Time(l.time[0], l.time[1]),
                 Kuchulem.MapLighting.Color.fromArray(l.color),
             )
         );
@@ -961,7 +961,7 @@ Kuchulem.MapLighting = {
 
         (mapLightingConfig.areas ?? []).forEach(al => areas[al.areaName] = al.steps.map(l => 
             new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(l.time[0], l.time[1]),
+                new Kuchulem_GameTime_Time(l.time[0], l.time[1]),
                 Kuchulem.MapLighting.Color.fromArray(l.color),
             )
         ));
@@ -1013,7 +1013,7 @@ Kuchulem.MapLighting = {
     /**
      * Calculates the color for the provided time
      * 
-     * @param {Kuchulem.GameTime.Time} time 
+     * @param {Kuchulem_GameTime_Time} time 
      * @param {Kuchulem.MapLighting.LightStep} previousStep 
      * @param {Kuchulem.MapLighting.LightStep} nextStep 
      * @returns {Kuchulem.MapLighting.Color}
@@ -1069,7 +1069,7 @@ Kuchulem.MapLighting = {
     /**
      * Gets the previous light step from a list of steps
      * 
-     * @param {Kuchulem.GameTime.Time} time 
+     * @param {Kuchulem_GameTime_Time} time 
      * @param {Kuchulem.MapLighting.LightStep[]} sortedSteps The light steps of the area, sorted by time
      * @returns {Kuchulem.MapLighting.LightStep}
      */
@@ -1077,7 +1077,7 @@ Kuchulem.MapLighting = {
         const lastStep = sortedSteps.last();
         return sortedSteps.last(s => s.time().toMinutes() <= time.toMinutes()) ??
             new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(
+                new Kuchulem_GameTime_Time(
                     lastStep.time().hours - 24, lastStep.time().minutes), 
                     lastStep.color()
             );
@@ -1086,7 +1086,7 @@ Kuchulem.MapLighting = {
     /**
      * Gets the next light step from a list of steps
      * 
-     * @param {Kuchulem.GameTime.Time} time The current in-game time
+     * @param {Kuchulem_GameTime_Time} time The current in-game time
      * @param {Kuchulem.MapLighting.LightStep[]} sortedSteps The light steps of the area, sorted by time
      * @returns {Kuchulem.MapLighting.LightStep}
      */
@@ -1094,7 +1094,7 @@ Kuchulem.MapLighting = {
         const firstStep = sortedSteps.first();
         return sortedSteps.first(s => s.time().toMinutes() > time.toMinutes()) ??
             new Kuchulem.MapLighting.LightStep(
-                new Kuchulem.GameTime.Time(
+                new Kuchulem_GameTime_Time(
                     firstStep.time().hours + 24, firstStep.time().minutes), 
                 firstStep.color()
             );

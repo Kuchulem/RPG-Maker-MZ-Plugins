@@ -2,11 +2,6 @@ if (!Kuchulem) {
     throw new Error("Kuchulem_Npcs requires Kuchulem_Base plugin to be loaded first");
 }
 
-Kuchulem.Npcs = {
-    pluginName: "Kuchulem_Npcs"
-};
-
-
 /*:
  * @target MZ
  * @plugindesc Manages NPCs and affects them to events in maps.
@@ -32,8 +27,32 @@ Kuchulem.Npcs = {
  * 
  * @command defineNpcEvent
  * @text Define Npc Event
- * @desc Associates an NPC with an event. This event behaviour will swlightly
- *       change. An event with an NPC attached will have an appearence defined
+ * @desc Associates an NPC with an event. This event behaviour will slightly
+ *       change.
+ *       An event with an NPC attached will have an appearence defined
+ *       from the npc's characterName and characterIndex properties for all
+ *       event pages except the first one, witch will remain as defined in the
+ *       editor. Every other behaviours will stay the same.
+ *       Other plugins may rely on that association when using commands in 
+ *       an event associated to an NPC.
+ * 
+ * @arg npcId
+ * @text NPC ID
+ * @min 1
+ * @type number
+ * @desc The ID if the NPC for this event
+ * 
+ * @arg eventId
+ * @text Event ID
+ * @min 1
+ * @type event
+ * @desc The event attached to this NPC
+ * 
+ * @command defineNpc
+ * @text Define NPC
+ * @desc Associates an NPC with the current event. This event behaviour will
+ *       slightly change.
+ *       An event with an NPC attached will have an appearence defined
  *       from the npc's characterName and characterIndex properties for all
  *       event pages except the first one, witch will remain as defined in the
  *       editor. Every other behaviours will stay the same.
@@ -43,15 +62,47 @@ Kuchulem.Npcs = {
  * @arg npcId
  * @text NPC ID
  * @type number
+ * @min 1
  * @desc The ID if the NPC for this event
  * 
- * @arg eventId
- * @text Event ID
- * @type event
- * @desc The event attached to this NPC
+ * @command changeNpcAppearence
+ * @text Change NPC appearence
+ * @desc Changes the selected NPC's appearence. His new appearence will remain
+ *       as long as it is not changed again. When a game is saved, the NPCs
+ *       whose appearence changed will keep the change.
+ * 
+ * @arg npcId
+ * @text NPC ID
+ * @type number
+ * @min 1
+ * @desc The ID if the NPC for this event
+ * 
+ * @arg characterName
+ * @text Character sprite name
+ * @type string
+ * @desc The name of the character sprite to use.
+ * 
+ * @arg characterIndex
+ * @text Character Index (index in sprite)
+ * @type number
+ * @min 0
+ * @max 7
+ * @desc The character index in the sprite, from 0 to 7. 
+ * 
+ * @arg faceName
+ * @text Face sprite name
+ * @type string
+ * @desc The name of the face sprite to use.
+ * 
+ * @arg faceIndex
+ * @text Face Index (index in sprite)
+ * @type number
+ * @min 0
+ * @max 7
+ * @desc The Face index in the sprite, from 0 to 7. 
  */
 (() => {
-    const pluginName = Kuchulem.Npcs.pluginName;
+    const pluginName = "Kuchulem_Npcs";
 
     /**
      * Defines an NPC
@@ -59,7 +110,7 @@ Kuchulem.Npcs = {
      * @class
      * @constructor
      */
-    Kuchulem.Npcs.Npc = function() {
+    function Kuchulem_Npcs_Npc() {
         this.initialize(...arguments);
     }
 
@@ -75,7 +126,7 @@ Kuchulem.Npcs = {
      * @param {number} faceIndex
      * @param {Object} caracteristics 
      */
-    Kuchulem.Npcs.Npc.prototype.initialize = function(
+    Kuchulem_Npcs_Npc.prototype.initialize = function(
         id,
         firstName,
         lastName,
@@ -100,9 +151,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Npcs.Npc#id
+     * @name Kuchulem_Npcs_Npc#id
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "id", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "id", {
         get: function() {
             return this._id;
         },
@@ -114,9 +165,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.Npcs.Npc#firstName
+     * @name Kuchulem_Npcs_Npc#firstName
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "firstName", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "firstName", {
         get: function() {
             return this._firstName;
         },
@@ -133,9 +184,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.Npcs.Npc#lastName
+     * @name Kuchulem_Npcs_Npc#lastName
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "lastName", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "lastName", {
         get: function() {
             return this._lastName;
         },
@@ -152,9 +203,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.Npcs.Npc#characterName
+     * @name Kuchulem_Npcs_Npc#characterName
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "characterName", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "characterName", {
         get: function() {
             return this._characterName;
         },
@@ -171,9 +222,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.Npcs.Npc#characterIndex
+     * @name Kuchulem_Npcs_Npc#characterIndex
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "characterIndex", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "characterIndex", {
         get: function() {
             return this._characterIndex;
         },
@@ -190,9 +241,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.Npcs.Npc#faceName
+     * @name Kuchulem_Npcs_Npc#faceName
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "faceName", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "faceName", {
         get: function() {
             return this._faceName;
         },
@@ -209,9 +260,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {string}
-     * @name Kuchulem.Npcs.Npc#faceIndex
+     * @name Kuchulem_Npcs_Npc#faceIndex
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "faceIndex", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "faceIndex", {
         get: function() {
             return this._faceIndex;
         },
@@ -228,9 +279,9 @@ Kuchulem.Npcs = {
      *
      * @readonly
      * @type {Object}
-     * @name Kuchulem.Npcs.Npc#caracteristics
+     * @name Kuchulem_Npcs_Npc#caracteristics
      */
-    Object.defineProperty(Kuchulem.Npcs.Npc.prototype, "caracteristics", {
+    Object.defineProperty(Kuchulem_Npcs_Npc.prototype, "caracteristics", {
         get: function() {
             return this._caracteristics;
         },
@@ -243,28 +294,28 @@ Kuchulem.Npcs = {
      * @class
      * @constructor
      */
-    Kuchulem.Npcs.GameNpcs = function() {
+    function Kuchulem_Npcs_GameNpcs() {
         this.initialize(...arguments);
     }
 
     /**
      * Initialises the NPC list
      */
-    Kuchulem.Npcs.GameNpcs.prototype.initialize = function() {
+    Kuchulem_Npcs_GameNpcs.prototype.initialize = function() {
         this._npcs = [];
     }
 
     /**
      * Sets the NPC list from the NPC database file
      */
-    Kuchulem.Npcs.GameNpcs.prototype.setupForNewGame = function() {
+    Kuchulem_Npcs_GameNpcs.prototype.setupForNewGame = function() {
         this.initialize();
     }
 
-    Kuchulem.Npcs.GameNpcs.prototype._tryLoadNpcs = function() {
+    Kuchulem_Npcs_GameNpcs.prototype._tryLoadNpcs = function() {
         if (!this._npcs.any()) {
             $dataNpcs.forEach(npc => {
-                this._npcs.push(new Kuchulem.Npcs.Npc(
+                this._npcs.push(new Kuchulem_Npcs_Npc(
                     npc.id,
                     npc.firstName,
                     npc.lastName,
@@ -289,7 +340,7 @@ Kuchulem.Npcs = {
      * @param {number} npcId 
      * @returns 
      */
-    Kuchulem.Npcs.GameNpcs.prototype.npc = function(npcId) {
+    Kuchulem_Npcs_GameNpcs.prototype.npc = function(npcId) {
         this._tryLoadNpcs();
 
         return this._npcs.first(npc => npc.id === npcId);
@@ -300,12 +351,46 @@ Kuchulem.Npcs = {
      * 
      * @param {object} args 
      */
-    Kuchulem.Npcs.GameNpcs.defineNpcEvent = function(args) {
+    Kuchulem_Npcs_GameNpcs.defineNpcEvent = function(args) {
         const eventId = Number(args.eventId);
         const npcId = Number(args.npcId);
         const event = $gameMap.event(eventId);
         event._npc = $gameNpcs.npc(npcId);
     } 
+    
+
+    /**
+     * Associates the current game event to an npc.
+     * 
+     * @param {object} args 
+     */
+    Kuchulem_Npcs_GameNpcs.defineNpc = function(args) {
+        Kuchulem_Npcs_GameNpcs.defineNpcEvent.call(this, {
+            npcId: Number(args.npcId),
+            eventId: this.eventId()
+        });
+    } 
+
+    /**
+     * Changes the appearence of an NPC
+     * 
+     * @param {object} args 
+     */
+    Kuchulem_Npcs_GameNpcs.changeNpcAppearence = function(args) {
+        const npcId = Number(args.npcId);
+        const characterName = String(args.characterName);
+        const characterIndex = Number(args.characterIndex);
+        const faceName = String(args.faceName);
+        const faceIndex = Number(args.faceIndex);
+        const npc = $gameNpcs.npc(npcId);
+        npc.characterName = characterName ?? npc.characterName;
+        npc.characterIndex = characterIndex ?? npc.characterIndex;
+        npc.faceName = faceName ?? npc.faceName;
+        npc.faceIndex = faceIndex ?? npc.faceIndex;
+        // if ($gameMap.npc(npcId)) {
+        //     $gameMap._npc = npc;
+        // }
+    }
 
     //#region Event overloading
     const Game_Event_setupPageSettings_base = Game_Event.prototype.setupPageSettings;
@@ -319,7 +404,7 @@ Kuchulem.Npcs = {
     /**
      * Gets the NPC associated to that event, if any, null otherwise.
      * 
-     * @returns {Kuchulem.Npcs.Npc}
+     * @returns {Kuchulem_Npcs_Npc}
      */
     Game_Event.prototype.npc = function() {
         return this._npc ?? null;
@@ -331,8 +416,10 @@ Kuchulem.Npcs = {
 
     const dataFile = String(parameters.dataFile);
     Kuchulem.registerDatabaseFile("$dataNpcs", dataFile ?? "Npcs.json");
-    Kuchulem.createGameObject("$gameNpcs", new Kuchulem.Npcs.GameNpcs());
+    Kuchulem.createGameObject("$gameNpcs", new Kuchulem_Npcs_GameNpcs(), true);
     //#endregion
 
-    PluginManager.registerCommand(pluginName, "defineNpcEvent", Kuchulem.Npcs.GameNpcs.defineNpcEvent);
+    PluginManager.registerCommand(pluginName, "defineNpcEvent", Kuchulem_Npcs_GameNpcs.defineNpcEvent);
+    PluginManager.registerCommand(pluginName, "defineNpc", Kuchulem_Npcs_GameNpcs.defineNpc);
+    PluginManager.registerCommand(pluginName, "changeNpcAppearence", Kuchulem_Npcs_GameNpcs.changeNpcAppearence);
 })();

@@ -2,10 +2,6 @@ if (!Kuchulem) {
     throw new Error("Kuchulem_Events requires Kuchulem plugin to be loaded first");
 }
 
-Kuchulem.GameTime = {
-    pluginName: "Kuchulem_GameTime"
-}
-
 /*:
  * @target MZ
  * @plugindesc Manages in-game time.
@@ -147,13 +143,10 @@ Kuchulem.GameTime = {
  * @text Minutes
  * @desc The minutes part of the time to set
  */
-
-Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
-
 (() => {
-    const pluginName = Kuchulem.GameTime.pluginName;
+    const pluginName = "Kuchulem_GameTime";
 
-    //#region Kuchulem.GameTime.Time class definition
+    //#region Kuchulem_GameTime_Time class definition
     /**
      * Defines a time.
      * 
@@ -162,7 +155,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * @param {number} hours Should be between 0 and 23, if not will be set to 0 or 23. 
      * @param {number} minutes Should be between 0 and 59, if not will be set to 0 or 59.
      */
-    Kuchulem.GameTime.Time = function(hours, minutes) {
+    function Kuchulem_GameTime_Time(hours, minutes) {
         this._hours = hours;
         this._minutes = minutes;
     }
@@ -172,9 +165,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.GameTime.Time#hours
+     * @name Kuchulem_GameTime_Time#hours
      */
-    Object.defineProperty(Kuchulem.GameTime.Time.prototype, "hours", {
+    Object.defineProperty(Kuchulem_GameTime_Time.prototype, "hours", {
         get: function() {
             return this._hours;
         },
@@ -186,9 +179,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.GameTime.Time#minutes
+     * @name Kuchulem_GameTime_Time#minutes
      */
-    Object.defineProperty(Kuchulem.GameTime.Time.prototype, "minutes", {
+    Object.defineProperty(Kuchulem_GameTime_Time.prototype, "minutes", {
         get: function() {
             return this._minutes;
         },
@@ -200,7 +193,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @returns {number}
      */
-    Kuchulem.GameTime.Time.prototype.toMinutes = function() { 
+    Kuchulem_GameTime_Time.prototype.toMinutes = function() { 
         return this._hours * 60 + this._minutes;
     }
     //#endregion
@@ -305,23 +298,23 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     };
     //#endregion
 
-    //#region Kuchulem.GameTime.Clock class definition
+    //#region Kuchulem_GameTime_Clock class definition
     /**
-     * Kuchulem.GameTime.Clock
+     * Kuchulem_GameTime_Clock
      * 
      * Class to manage in-game time
      * 
      * @class
      * @constructor
      */
-    Kuchulem.GameTime.Clock = function() {
+    function Kuchulem_GameTime_Clock() {
         this.initialize(...arguments);
     }
 
     /**
      * Initializes the clock
      */
-    Kuchulem.GameTime.Clock.prototype.initialize = function() {
+    Kuchulem_GameTime_Clock.prototype.initialize = function() {
         this._hours = 0;
         this._minutes = 0;
         this._days = 1;
@@ -340,9 +333,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.GameTime.Clock#hours
+     * @name Kuchulem_GameTime_Clock#hours
      */
-    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "hours", {
+    Object.defineProperty(Kuchulem_GameTime_Clock.prototype, "hours", {
         get: function() {
             return this._hours;
         },
@@ -354,9 +347,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.GameTime.Clock#minutes
+     * @name Kuchulem_GameTime_Clock#minutes
      */
-    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "minutes", {
+    Object.defineProperty(Kuchulem_GameTime_Clock.prototype, "minutes", {
         get: function() {
             return parseInt(this._minutes / this._displaySpan) * this._displaySpan;
         },
@@ -368,9 +361,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.GameTime.Clock#days
+     * @name Kuchulem_GameTime_Clock#days
      */
-    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "days", {
+    Object.defineProperty(Kuchulem_GameTime_Clock.prototype, "days", {
         get: function() {
             return this._days;
         },
@@ -382,9 +375,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.GameTime.Clock#framesPerMinute
+     * @name Kuchulem_GameTime_Clock#framesPerMinute
      */
-    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "framesPerMinute", {
+    Object.defineProperty(Kuchulem_GameTime_Clock.prototype, "framesPerMinute", {
         get: function() {
             return this._framesPerMinute;
         },
@@ -396,9 +389,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.GameTime.Clock#paused
+     * @name Kuchulem_GameTime_Clock#paused
      */
-    Object.defineProperty(Kuchulem.GameTime.Clock.prototype, "paused", {
+    Object.defineProperty(Kuchulem_GameTime_Clock.prototype, "paused", {
         get: function() {
             return this._paused;
         },
@@ -408,19 +401,19 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     /**
      * Gets the time  of the day
      * 
-     * @returns {Kuchulem.GameTime.Time}
+     * @returns {Kuchulem_GameTime_Time}
      */
-    Kuchulem.GameTime.Clock.prototype.time = function() { 
-        return new Kuchulem.GameTime.Time(this.hours, this.minutes);
+    Kuchulem_GameTime_Clock.prototype.time = function() { 
+        return new Kuchulem_GameTime_Time(this.hours, this.minutes);
     }
 
     /**
      * Gets the real time of the day
      * 
-     * @returns {Kuchulem.GameTime.Time}
+     * @returns {Kuchulem_GameTime_Time}
      */
-    Kuchulem.GameTime.Clock.prototype.realTime = function() { 
-        return new Kuchulem.GameTime.Time(this.hours, this._minutes);
+    Kuchulem_GameTime_Clock.prototype.realTime = function() { 
+        return new Kuchulem_GameTime_Time(this.hours, this._minutes);
     }
 
     /**
@@ -428,7 +421,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} minutes 
      */
-    Kuchulem.GameTime.Clock.prototype.setMinutes = function(minutes) {
+    Kuchulem_GameTime_Clock.prototype.setMinutes = function(minutes) {
         this._minutes = 0;
         this.addMinutes(minutes);
     }
@@ -438,7 +431,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} hours 
      */
-    Kuchulem.GameTime.Clock.prototype.setHours = function(hours) {
+    Kuchulem_GameTime_Clock.prototype.setHours = function(hours) {
         this._hours = 0;
         this.addHours(hours);
     }
@@ -446,9 +439,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     /**
      * Sets the hours part of the time
      * 
-     * @param {Kuchulem.GameTime.Time} time 
+     * @param {Kuchulem_GameTime_Time} time 
      */
-    Kuchulem.GameTime.Clock.prototype.setTime = function(hours, minutes) {
+    Kuchulem_GameTime_Clock.prototype.setTime = function(hours, minutes) {
         this._hours = 0;
         this._minutes = 0;
         this.addMinutes(minutes);
@@ -460,7 +453,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} days 
      */
-    Kuchulem.GameTime.Clock.prototype.setDays = function(days) {
+    Kuchulem_GameTime_Clock.prototype.setDays = function(days) {
         this._days = 0;
         this.addDays(days);
     }
@@ -470,7 +463,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} nbFrames 
      */
-    Kuchulem.GameTime.Clock.prototype.setFramesPerMinute = function(nbFrames) {
+    Kuchulem_GameTime_Clock.prototype.setFramesPerMinute = function(nbFrames) {
         if(nbFrames < 1) {
             throw ["InvalidFrames", this, `${nbFrames} is an invalid number of frames (should be greater than 0)`]
         }
@@ -486,7 +479,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} displaySpan 
      */
-    Kuchulem.GameTime.Clock.prototype.setDisplaySpan = function(displaySpan) {
+    Kuchulem_GameTime_Clock.prototype.setDisplaySpan = function(displaySpan) {
         this._displaySpan = displaySpan > 0 ? displaySpan : 1;
     }
 
@@ -497,7 +490,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * @param {number} hoursVariableId 
      * @param {number} daysVariableId 
      */
-    Kuchulem.GameTime.Clock.prototype.setVariablesIds = function(minutesVariableId, hoursVariableId, daysVariableId) {
+    Kuchulem_GameTime_Clock.prototype.setVariablesIds = function(minutesVariableId, hoursVariableId, daysVariableId) {
         this._minutesVariableId = minutesVariableId > 0 ? minutesVariableId : null;
         this._hoursVariableId = hoursVariableId > 0 ? hoursVariableId : null;
         this._daysVariableId = daysVariableId > 0 ? daysVariableId : null;
@@ -506,7 +499,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     /**
      * Refreshes the clock on each frame
      */
-    Kuchulem.GameTime.Clock.prototype.refresh = function() {
+    Kuchulem_GameTime_Clock.prototype.refresh = function() {
         if (
             ((SceneManager.isNextScene(Scene_Map) === false) || !(SceneManager._scene instanceof Scene_Map)) && !this._paused) {
             this.pause(false);
@@ -531,7 +524,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} nbMinutes 
      */
-    Kuchulem.GameTime.Clock.prototype.addMinutes = function(nbMinutes) {
+    Kuchulem_GameTime_Clock.prototype.addMinutes = function(nbMinutes) {
         const minutes = this._minutes + nbMinutes;
         if (minutes >= 60) {
             this._minutes = minutes % 60;
@@ -543,9 +536,9 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
             this._minutes = minutes;
         }
         this._saveMinutes();
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.realMinutesTick, this);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.realMinutesTick, this);
         if ((this._minutes % this._displaySpan) === 0) {
-            $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.minutesTick, this);
+            $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.minutesTick, this);
         }
     }
 
@@ -555,7 +548,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} nbHours 
      */
-    Kuchulem.GameTime.Clock.prototype.addHours = function(nbHours) {
+    Kuchulem_GameTime_Clock.prototype.addHours = function(nbHours) {
         const hours = this._hours + nbHours;
         if (hours >= 24) {
             this._hours = hours % 24;
@@ -566,7 +559,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
         } else {
             this._hours = hours;   
         }
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.hoursTick, this);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.hoursTick, this);
         this._saveHours();
     }
 
@@ -577,12 +570,12 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
      * 
      * @param {number} nbDays 
      */
-    Kuchulem.GameTime.Clock.prototype.addDays = function(nbDays) {
+    Kuchulem_GameTime_Clock.prototype.addDays = function(nbDays) {
         this._days += nbDays;
         if (this._days < 1) {
             this.reset();
         } else {
-            $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.daysTick, this);
+            $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.daysTick, this);
             this._saveDays();
         }
     }
@@ -590,38 +583,38 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     /**
      * Pauses the clock
      */
-    Kuchulem.GameTime.Clock.prototype.pause = function(byUser = true) {
+    Kuchulem_GameTime_Clock.prototype.pause = function(byUser = true) {
         this._paused = true;
         this._pausedByUser = byUser;
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.paused, this);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.paused, this);
     }
 
     /**
      * Resumes or starts the clock
      */
-    Kuchulem.GameTime.Clock.prototype.resume = function() {
+    Kuchulem_GameTime_Clock.prototype.resume = function() {
         this._paused = false;
         if (!this._started) {
-            $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.resumed, this);
+            $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.resumed, this);
             this._started = true;
         } else {
-            $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.started, this);
+            $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.started, this);
         }
     }
 
     /**
      * Resets the clock to "Day 1 00:00"
      */
-    Kuchulem.GameTime.Clock.prototype.reset = function() {
+    Kuchulem_GameTime_Clock.prototype.reset = function() {
         this.initialize();
         this._saveTime();
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.daysTick, this);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.hoursTick, this);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.minutesTick, this);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, this);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.daysTick, this);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.hoursTick, this);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.minutesTick, this);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, this);
     }
 
-    Kuchulem.GameTime.Clock.events = {
+    Kuchulem_GameTime_Clock.events = {
         started: "started",
         paused: "paused",
         resumed: "resumed",
@@ -632,25 +625,25 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
         updated: "updated"
     };
 
-    Kuchulem.GameTime.Clock.prototype._saveMinutes = function() {
+    Kuchulem_GameTime_Clock.prototype._saveMinutes = function() {
         if (this._minutesVariableId !== null) {
             $gameVariables.setValue(this._minutesVariableId, this._minutes);
         }
     }
 
-    Kuchulem.GameTime.Clock.prototype._saveHours = function() {
+    Kuchulem_GameTime_Clock.prototype._saveHours = function() {
         if (this._hoursVariableId !== null) {
             $gameVariables.setValue(this._hoursVariableId, this._hours);
         }
     }
 
-    Kuchulem.GameTime.Clock.prototype._saveDays = function() {
+    Kuchulem_GameTime_Clock.prototype._saveDays = function() {
         if (this._daysVariableId !== null) {
             $gameVariables.setValue(this._daysVariableId, this._days);
         }
     }
 
-    Kuchulem.GameTime.Clock.prototype._saveTime = function() {
+    Kuchulem_GameTime_Clock.prototype._saveTime = function() {
         this._saveMinutes();
         this._saveHours();
         this._saveDays();
@@ -658,7 +651,7 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     //#endregion
 
     //#region Game object : $gameClock
-    Kuchulem.createGameObject("$gameClock", new Kuchulem.GameTime.Clock(), true);
+    Kuchulem.createGameObject("$gameClock", new Kuchulem_GameTime_Clock(), true);
     //#endregion
 
     //#region Events
@@ -687,59 +680,59 @@ Kuchulem.GameTime.pluginName = "Kuchulem_GameTime",
     //#endregion
 
     //#region Register commands
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "start", () => {
+    PluginManager.registerCommand(pluginName, "start", () => {
         $gameClock.resume();
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "pause", () => {
+    PluginManager.registerCommand(pluginName, "pause", () => {
         $gameClock.pause();
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "resume", () => {
+    PluginManager.registerCommand(pluginName, "resume", () => {
         $gameClock.resume();
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "setMinutes", (args) => {
+    PluginManager.registerCommand(pluginName, "setMinutes", (args) => {
         const minutes = Number(args.minutes);
         $gameClock.setMinutes(minutes);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, $gameClock);
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "setHours", (args) => {
+    PluginManager.registerCommand(pluginName, "setHours", (args) => {
         const hours = Number(args.hours);
         $gameClock.setHours(hours);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, $gameClock);
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "setDays", (args) => {
+    PluginManager.registerCommand(pluginName, "setDays", (args) => {
         const days = Number(args.days);
         $gameClock.setDays(days);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, $gameClock);
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "addMinutes", (args) => {
+    PluginManager.registerCommand(pluginName, "addMinutes", (args) => {
         const minutes = Number(args.nbMinutes);
         $gameClock.addMinutes(minutes);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, $gameClock);
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "addHours", (args) => {
+    PluginManager.registerCommand(pluginName, "addHours", (args) => {
         const hours = Number(args.nbHours);
         $gameClock.addHours(hours);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, $gameClock);
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "addDays", (args) => {
+    PluginManager.registerCommand(pluginName, "addDays", (args) => {
         const days = Number(args.nbDays);
         $gameClock.addDays(days);
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, $gameClock);
     });
 
-    PluginManager.registerCommand(Kuchulem.GameTime.pluginName, "setTime", (args) => {
+    PluginManager.registerCommand(pluginName, "setTime", (args) => {
         const hours = Number(args.hours);
         const minutes = Number(args.minutes);
         $gameClock.setTime(hours.clamp(0, 23), minutes.clamp(0, 59));
-        $eventsPublisher.publish(Kuchulem.GameTime.Clock.events.updated, $gameClock);
+        $eventsPublisher.publish(Kuchulem_GameTime_Clock.events.updated, $gameClock);
     });
     //#endregion
 })();

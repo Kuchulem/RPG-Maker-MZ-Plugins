@@ -2,7 +2,7 @@ if (!Kuchulem) {
     throw new Error("Kuchulem_Events requires Kuchulem plugin to be loaded first");
 }
 
-Kuchulem.Events = {
+Kuchulem_Events = {
     pluginName: "Kuchulem_Events"
 };
 
@@ -32,7 +32,7 @@ Kuchulem.Events = {
  * ----------------------------------------------------------------------------
  */
 (() => {
-    //#region Kuchulem.Events.Subscribtion class definition
+    //#region Kuchulem_Events_Subscribtion class definition
     /**
      * Represents a subscribtion
      * 
@@ -43,7 +43,7 @@ Kuchulem.Events = {
      * @param {string} type 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Subscribtion = function() {
+    Kuchulem_Events_Subscribtion = function() {
         this.initialize(...arguments);
     }
 
@@ -55,7 +55,7 @@ Kuchulem.Events = {
      * @param {string} type 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Subscribtion.prototype.initialize = function(eventName, publisher, type, callback) {
+    Kuchulem_Events_Subscribtion.prototype.initialize = function(eventName, publisher, type, callback) {
         this._eventName = eventName;
         this._publisher = publisher;
         this._type = ["global", "switch", "variable"].includes(type) ? type : "global";
@@ -67,9 +67,9 @@ Kuchulem.Events = {
      *
      * @readonly
      * @type string
-     * @name Kuchulem.Events.Subscribtion#eventName
+     * @name Kuchulem_Events_Subscribtion#eventName
      */
-    Object.defineProperty(Kuchulem.Events.Subscribtion.prototype, "eventName", {
+    Object.defineProperty(Kuchulem_Events_Subscribtion.prototype, "eventName", {
         get: function() {
             return this._eventName;
         },
@@ -81,9 +81,9 @@ Kuchulem.Events = {
      *
      * @readonly
      * @type Object
-     * @name Kuchulem.Events.Subscribtion#publisher
+     * @name Kuchulem_Events_Subscribtion#publisher
      */
-    Object.defineProperty(Kuchulem.Events.Subscribtion.prototype, "publisher", {
+    Object.defineProperty(Kuchulem_Events_Subscribtion.prototype, "publisher", {
         get: function() {
             return this._publisher;
         },
@@ -95,9 +95,9 @@ Kuchulem.Events = {
      *
      * @readonly
      * @type Function
-     * @name Kuchulem.Events.Subscribtion#callback
+     * @name Kuchulem_Events_Subscribtion#callback
      */
-    Object.defineProperty(Kuchulem.Events.Subscribtion.prototype, "callback", {
+    Object.defineProperty(Kuchulem_Events_Subscribtion.prototype, "callback", {
         get: function() {
             return this._callback;
         },
@@ -109,9 +109,9 @@ Kuchulem.Events = {
      *
      * @readonly
      * @type Function
-     * @name Kuchulem.Events.Subscribtion#type
+     * @name Kuchulem_Events_Subscribtion#type
      */
-    Object.defineProperty(Kuchulem.Events.Subscribtion.prototype, "type", {
+    Object.defineProperty(Kuchulem_Events_Subscribtion.prototype, "type", {
         get: function() {
             return this._type
         },
@@ -119,13 +119,13 @@ Kuchulem.Events = {
     });
     //#endregion	
 
-    //#region Kuchulem.Events.Publisher class definition
+    //#region Kuchulem_Events_Publisher class definition
     /**
      * The class that will manage the events
      * 
      * @class
      */
-    Kuchulem.Events.Publisher = function() {
+    Kuchulem_Events_Publisher = function() {
         this._subscribtions = {
             global: [],
             switches: [],
@@ -140,9 +140,9 @@ Kuchulem.Events = {
      * @param {Object} publisher 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Publisher.prototype.on = function(eventName, publisher, callback) {
+    Kuchulem_Events_Publisher.prototype.on = function(eventName, publisher, callback) {
         this._subscribtions.global.push(
-            new Kuchulem.Events.Subscribtion(eventName, publisher, "global", callback)
+            new Kuchulem_Events_Subscribtion(eventName, publisher, "global", callback)
         );
     }
 
@@ -153,7 +153,7 @@ Kuchulem.Events = {
      * @param {Object} publisherClass 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Publisher.prototype.off = function(eventName, publisher, callback) {
+    Kuchulem_Events_Publisher.prototype.off = function(eventName, publisher, callback) {
         const toRemove = this._subscribtions.global.filter(s =>
             s.eventName === eventName 
             && s.publisher === publisher
@@ -181,8 +181,8 @@ Kuchulem.Events = {
      * @param {number} switchId 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Publisher.onSwitchEvent = function(eventName, switchId, callback) {
-        this._subscribtions.switches.push( new Kuchulem.Events.Subscribtion(
+    Kuchulem_Events_Publisher.onSwitchEvent = function(eventName, switchId, callback) {
+        this._subscribtions.switches.push( new Kuchulem_Events_Subscribtion(
             eventName,
             switchId,
             "switch",
@@ -197,7 +197,7 @@ Kuchulem.Events = {
      * @param {number} switchId 
      * @param {Function} callback 
      */
-    Kuchulem.Events.Publisher.offSwitchEvent = function(eventName, switchId, callback) {
+    Kuchulem_Events_Publisher.offSwitchEvent = function(eventName, switchId, callback) {
         const toRemove = this._subscribtions.switches.filter( s => 
             s.eventName === eventName,
             s.switchId === switchId,
@@ -218,7 +218,7 @@ Kuchulem.Events = {
      * @param {string} eventName 
      * @param {Object} publisherClass 
      */
-    Kuchulem.Events.Publisher.prototype.publish = function(eventName, publisher) {
+    Kuchulem_Events_Publisher.prototype.publish = function(eventName, publisher) {
         this._subscribtions.global.filter(
             s => s.eventName === eventName && publisher instanceof s.publisher
         ).forEach(
@@ -233,7 +233,7 @@ Kuchulem.Events = {
      * @param {string} eventName 
      * @param {Object} publisherClass 
      */
-    Kuchulem.Events.Publisher.prototype.publishSwitchEvent = function(eventName, switchId, oldValue, newValue) {
+    Kuchulem_Events_Publisher.prototype.publishSwitchEvent = function(eventName, switchId, oldValue, newValue) {
         this._subscribtions.switches.filter(
             s => s.eventName === eventName && s.publisher === switchId
         ).forEach(
@@ -242,7 +242,7 @@ Kuchulem.Events = {
     }
     //#endregion
 
-    Kuchulem.createGameObject("$eventsPublisher", new Kuchulem.Events.Publisher());
+    Kuchulem.createGameObject("$eventsPublisher", new Kuchulem_Events_Publisher());
 
     //#region Spriteset_Base events
     /**

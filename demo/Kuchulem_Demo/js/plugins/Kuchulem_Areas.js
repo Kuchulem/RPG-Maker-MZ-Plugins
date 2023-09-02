@@ -2,10 +2,6 @@ if (!Kuchulem) {
     throw new Error("Kuchulem_Areas requires Kuchulem plugin to be loaded first");
 }
 
-Kuchulem.Areas = {
-    pluginName: "Kuchulem_Areas"
-};
-
 /*:
  * @target MZ
  * @plugindesc Manages map areas.
@@ -29,9 +25,9 @@ Kuchulem.Areas = {
  * @desc The data file name that will define areas 
  */
 (() => {
-    const pluginName = Kuchulem.Areas.pluginName;
+    const pluginName = "Kuchulem_Areas";
 
-    //#region Kuchulem.Areas.Area class definition
+    //#region Kuchulem_Areas_Area class definition
     /**
      * Defines an area. An area is a rectangle shaped group of tiles in a map.
      * 
@@ -53,7 +49,7 @@ Kuchulem.Areas = {
      * @param {number} width The width in number of tiles of the area
      * @param {number} height The height in number of tiles of the area
      */
-    Kuchulem.Areas.Area = function(
+    function Kuchulem_Areas_Area(
         id, mapId,
         name,
         x, y, 
@@ -62,7 +58,7 @@ Kuchulem.Areas = {
         this.initialize(id, mapId, name, x, y, width, height);
     }
 
-    Kuchulem.Areas.Area.prototype.initialize = function(
+    Kuchulem_Areas_Area.prototype.initialize = function(
         id, mapId,
         name,
         x, y, 
@@ -82,9 +78,9 @@ Kuchulem.Areas = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Areas.Area#x
+     * @name Kuchulem_Areas_Area#x
      */
-    Object.defineProperty(Kuchulem.Areas.Area.prototype, "x", {
+    Object.defineProperty(Kuchulem_Areas_Area.prototype, "x", {
         get: function() {
             return this._x;
         },
@@ -96,9 +92,9 @@ Kuchulem.Areas = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Areas.Area#y
+     * @name Kuchulem_Areas_Area#y
      */
-    Object.defineProperty(Kuchulem.Areas.Area.prototype, "y", {
+    Object.defineProperty(Kuchulem_Areas_Area.prototype, "y", {
         get: function() {
             return this._y;
         },
@@ -110,9 +106,9 @@ Kuchulem.Areas = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Areas.Area#height
+     * @name Kuchulem_Areas_Area#height
      */
-    Object.defineProperty(Kuchulem.Areas.Area.prototype, "height", {
+    Object.defineProperty(Kuchulem_Areas_Area.prototype, "height", {
         get: function() {
             return this._height;
         },
@@ -124,9 +120,9 @@ Kuchulem.Areas = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Areas.Area#id
+     * @name Kuchulem_Areas_Area#id
      */
-    Object.defineProperty(Kuchulem.Areas.Area.prototype, "id", {
+    Object.defineProperty(Kuchulem_Areas_Area.prototype, "id", {
         get: function() {
             return this._id;
         },
@@ -138,9 +134,9 @@ Kuchulem.Areas = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Areas.Area#mapId
+     * @name Kuchulem_Areas_Area#mapId
      */
-    Object.defineProperty(Kuchulem.Areas.Area.prototype, "mapId", {
+    Object.defineProperty(Kuchulem_Areas_Area.prototype, "mapId", {
         get: function() {
             return this._mapId;
         },
@@ -152,9 +148,9 @@ Kuchulem.Areas = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Areas.Area#name
+     * @name Kuchulem_Areas_Area#name
      */
-    Object.defineProperty(Kuchulem.Areas.Area.prototype, "name", {
+    Object.defineProperty(Kuchulem_Areas_Area.prototype, "name", {
         get: function() {
             return this._name;
         },
@@ -166,9 +162,9 @@ Kuchulem.Areas = {
      *
      * @readonly
      * @type {number}
-     * @name Kuchulem.Areas.Area#width
+     * @name Kuchulem_Areas_Area#width
      */
-    Object.defineProperty(Kuchulem.Areas.Area.prototype, "width", {
+    Object.defineProperty(Kuchulem_Areas_Area.prototype, "width", {
         get: function() {
             return this._width;
         },
@@ -180,7 +176,7 @@ Kuchulem.Areas = {
      * 
      * @returns {boolean}
      */
-    Kuchulem.Areas.Area.prototype.isPlayerInside = function() {
+    Kuchulem_Areas_Area.prototype.isPlayerInside = function() {
         return this.isInside($gamePlayer.x, $gamePlayer.y);
     }
 
@@ -189,7 +185,7 @@ Kuchulem.Areas = {
      * 
      * @returns {boolean}
      */
-    Kuchulem.Areas.Area.prototype.isInside = function(x, y) {
+    Kuchulem_Areas_Area.prototype.isInside = function(x, y) {
         const displayX = this._x - $gameMap.displayX();
         const displayY = this._y - $gameMap.displayY();
         return (
@@ -207,7 +203,7 @@ Kuchulem.Areas = {
      * Gets an area from the current map
      * 
      * @param {number} areaId 
-     * @returns {Kuchulem.Areas.Area}
+     * @returns {Kuchulem_Areas_Area}
      */
     Game_Map.prototype.area = function(areaId) {
         return this._areas.first(areaId);
@@ -217,7 +213,7 @@ Kuchulem.Areas = {
      * Gets the areas sharing areaName
      * 
      * @param {string} areaName 
-     * @returns {Kuchulem.Areas.Area[]}
+     * @returns {Kuchulem_Areas_Area[]}
      */
     Game_Map.prototype.namedAreas = function(areaName) {
         return this._areas.filter(a => a.name === areaName);
@@ -226,7 +222,7 @@ Kuchulem.Areas = {
     /**
      * Gets the areas sharing the same name in witch the palyer stands
      * 
-     * @returns {Kuchulem.Areas.Area[]}
+     * @returns {Kuchulem_Areas_Area[]}
      */
     Game_Map.prototype.playerAreas = function() {
         return this._areas.filter(a =>
@@ -237,7 +233,7 @@ Kuchulem.Areas = {
     /**
      * Gets the areas of the map
      * 
-     * @returns {Kuchulem.Areas.Area[]}
+     * @returns {Kuchulem_Areas_Area[]}
      */
     Game_Map.prototype.areas = function() {
         return this._areas;
@@ -259,7 +255,7 @@ Kuchulem.Areas = {
 
         map._areas = [];
         $dataAreas.filter(a => a.mapId === map.mapId()).forEach(area => {
-            map._areas.push(new Kuchulem.Areas.Area(
+            map._areas.push(new Kuchulem_Areas_Area(
                 area.id,
                 area.mapId,
                 area.name,
