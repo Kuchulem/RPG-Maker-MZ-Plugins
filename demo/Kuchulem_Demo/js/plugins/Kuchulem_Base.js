@@ -62,7 +62,7 @@ function Kuchulem() {
      */
     Kuchulem.registerDatabaseFile = function(name, src) {
         DataManager._databaseFiles.push({ name: name, src: src });
-    }
+    };
 
     /**
      * Creates a game object, like the $gameMap ou $gamePlayer objects.
@@ -79,7 +79,7 @@ function Kuchulem() {
         if (addToSaves) {
             Kuchulem._gameObjectsToSave.push(name);
         }
-    }
+    };
 
     /**
      * Overloads the DataManager.makeSaveContents method to add the game objects
@@ -94,7 +94,7 @@ function Kuchulem() {
         });
 
         return contents;
-    }
+    };
 
     /**
      * Overloads the DataManager.extractSaveContents method to add the game objects
@@ -107,5 +107,5 @@ function Kuchulem() {
         Kuchulem._gameObjectsToSave.forEach(gameObject => {
             window[gameObject] = contents[gameObject];
         });
-    }
+    };
 })();
