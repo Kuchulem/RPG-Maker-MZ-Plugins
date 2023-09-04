@@ -1,0 +1,15 @@
+[
+    {"id": 1, "mapId": 3, "name": "Hall", "x": 9, "y": 13, "width": 3, "height": 7},
+    {"id": 2, "mapId": 3, "name": "Hall", "x": 2, "y": 9, "width": 17, "height": 4},
+    {"id": 3, "mapId": 3, "name": "Hall", "x": 2, "y": 13, "width": 6, "height": 1},
+    {"id": 4, "mapId": 3, "name": "Hall", "x": 13, "y": 13, "width": 6, "height": 1},
+    {"id": 5, "mapId": 3, "name": "Hall", "x": 3, "y": 14, "width": 5, "height": 1},
+    {"id": 6, "mapId": 3, "name": "Hall", "x": 13, "y": 14, "width": 5, "height": 1},
+    {"id": 7, "mapId": 3, "name": "Hall", "x": 3, "y": 8, "width": 3, "height": 3},
+    {"id": 8, "mapId": 3, "name": "Hall", "x": 2, "y": 3, "width": 5, "height": 5},
+    {"id": 9, "mapId": 3, "name": "Hall", "x": 8, "y": 6, "width": 5, "height": 3},
+    {"id": 10, "mapId": 3, "name": "Room", "x": 14, "y": 3, "width": 5, "height": 5},
+    {"id": 11, "mapId": 3, "name": "Room", "x": 15, "y": 2, "width": 3, "height": 1},
+    {"id": 12, "mapId": 3, "name": "Room", "x": 16, "y": 8, "width": 1, "height": 2},
+    {"id": 13, "mapId": 3, "name": "Landing", "x": 8, "y": 2, "width": 5, "height": 4}
+]

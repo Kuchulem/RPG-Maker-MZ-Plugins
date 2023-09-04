@@ -1,0 +1,22 @@
+[
+    { 
+        "id": 1,
+        "firstName": "Kuchulem",
+        "lastName": "",
+        "characterName": "People3",
+        "characterIndex": 4,
+        "faceName": "People3",
+        "faceIndex": 4,
+        "caracteristics": {}
+    },
+    { 
+        "id": 2,
+        "firstName": "Sylvia",
+        "lastName": "The Innkeeper",
+        "characterName": "People1",
+        "characterIndex": 5,
+        "faceName": "People1",
+        "faceIndex": 5,
+        "caracteristics": {}
+    }
+]
