@@ -24,180 +24,180 @@ if (!Kuchulem) {
  * @text Data file name
  * @desc The data file name that will define areas 
  */
+
+//#region Kuchulem_Areas_Area class definition
+/**
+ * Defines an area. An area is a rectangle shaped group of tiles in a map.
+ * 
+ * Each area in a same map MUST have a unique ID (id).
+ * Howerver to define complexe areas the name can be shared accros multiple 
+ * ones.
+ * Two areas sharing the same name should be treated as a single one.
+ * The unit for coordinates and size is the tile, the top-left tile has a coodinate
+ * of [0,0]
+ * 
+ * @class
+ * @constructor
+ * 
+ * @param {number} id The ID of the area 
+ * @param {number} mapId The ID of the map in the area
+ * @param {string} name The name of the area
+ * @param {number} x The X coorinate of the area from the top left corner.  
+ * @param {number} y The Y coorinate of the area from the top left corner.
+ * @param {number} width The width in number of tiles of the area
+ * @param {number} height The height in number of tiles of the area
+ */
+function Kuchulem_Areas_Area(
+    id, mapId,
+    name,
+    x, y, 
+    width, height
+) {
+    this.initialize(id, mapId, name, x, y, width, height);
+}
+
+Kuchulem_Areas_Area.prototype.initialize = function(
+    id, mapId,
+    name,
+    x, y, 
+    width, height
+) {
+    this._id = id;
+    this._mapId = mapId || $gameMap.mapId();
+    this._name = name;
+    this._x = x;
+    this._y = y;
+    this._width = width;
+    this._height = height;
+};
+
+/**
+ * The area X coordinate
+ *
+ * @readonly
+ * @type {number}
+ * @name Kuchulem_Areas_Area#x
+ */
+Object.defineProperty(Kuchulem_Areas_Area.prototype, "x", {
+    get: function() {
+        return this._x;
+    },
+    configurable: true
+});
+
+/**
+ * The area Y coordinate
+ *
+ * @readonly
+ * @type {number}
+ * @name Kuchulem_Areas_Area#y
+ */
+Object.defineProperty(Kuchulem_Areas_Area.prototype, "y", {
+    get: function() {
+        return this._y;
+    },
+    configurable: true
+});
+
+/**
+ * The area height
+ *
+ * @readonly
+ * @type {number}
+ * @name Kuchulem_Areas_Area#height
+ */
+Object.defineProperty(Kuchulem_Areas_Area.prototype, "height", {
+    get: function() {
+        return this._height;
+    },
+    configurable: true
+});
+
+/**
+ * The area ID
+ *
+ * @readonly
+ * @type {number}
+ * @name Kuchulem_Areas_Area#id
+ */
+Object.defineProperty(Kuchulem_Areas_Area.prototype, "id", {
+    get: function() {
+        return this._id;
+    },
+    configurable: true
+});
+
+/**
+ * The area map ID
+ *
+ * @readonly
+ * @type {number}
+ * @name Kuchulem_Areas_Area#mapId
+ */
+Object.defineProperty(Kuchulem_Areas_Area.prototype, "mapId", {
+    get: function() {
+        return this._mapId;
+    },
+    configurable: true
+});
+
+/**
+ * The area name
+ *
+ * @readonly
+ * @type {number}
+ * @name Kuchulem_Areas_Area#name
+ */
+Object.defineProperty(Kuchulem_Areas_Area.prototype, "name", {
+    get: function() {
+        return this._name;
+    },
+    configurable: true
+});
+
+/**
+ * The area width
+ *
+ * @readonly
+ * @type {number}
+ * @name Kuchulem_Areas_Area#width
+ */
+Object.defineProperty(Kuchulem_Areas_Area.prototype, "width", {
+    get: function() {
+        return this._width;
+    },
+    configurable: true
+});
+
+/**
+ * Checks if player is in the area
+ * 
+ * @returns {boolean}
+ */
+Kuchulem_Areas_Area.prototype.isPlayerInside = function() {
+    return this.isInside($gamePlayer.x, $gamePlayer.y);
+}
+
+/**
+ * Checks if coodinates are in the area
+ * 
+ * @returns {boolean}
+ */
+Kuchulem_Areas_Area.prototype.isInside = function(x, y) {
+    const displayX = this._x - $gameMap.displayX();
+    const displayY = this._y - $gameMap.displayY();
+    return (
+        $gameMap.mapId() === this._mapId &&
+        x >= displayX &&
+        y >= displayY &&
+        x < displayX + this._width &&
+        y < displayY + this._height
+    );
+};
+//#endregion
+
 (() => {
     const pluginName = "Kuchulem_Areas";
-
-    //#region Kuchulem_Areas_Area class definition
-    /**
-     * Defines an area. An area is a rectangle shaped group of tiles in a map.
-     * 
-     * Each area in a same map MUST have a unique ID (id).
-     * Howerver to define complexe areas the name can be shared accros multiple 
-     * ones.
-     * Two areas sharing the same name should be treated as a single one.
-     * The unit for coordinates and size is the tile, the top-left tile has a coodinate
-     * of [0,0]
-     * 
-     * @class
-     * @constructor
-     * 
-     * @param {number} id The ID of the area 
-     * @param {number} mapId The ID of the map in the area
-     * @param {string} name The name of the area
-     * @param {number} x The X coorinate of the area from the top left corner.  
-     * @param {number} y The Y coorinate of the area from the top left corner.
-     * @param {number} width The width in number of tiles of the area
-     * @param {number} height The height in number of tiles of the area
-     */
-    function Kuchulem_Areas_Area(
-        id, mapId,
-        name,
-        x, y, 
-        width, height
-    ) {
-        this.initialize(id, mapId, name, x, y, width, height);
-    }
-
-    Kuchulem_Areas_Area.prototype.initialize = function(
-        id, mapId,
-        name,
-        x, y, 
-        width, height
-    ) {
-        this._id = id;
-        this._mapId = mapId || $gameMap.mapId();
-        this._name = name;
-        this._x = x;
-        this._y = y;
-        this._width = width;
-        this._height = height;
-    }
-
-    /**
-     * The area X coordinate
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem_Areas_Area#x
-     */
-    Object.defineProperty(Kuchulem_Areas_Area.prototype, "x", {
-        get: function() {
-            return this._x;
-        },
-        configurable: true
-    });
-
-    /**
-     * The area Y coordinate
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem_Areas_Area#y
-     */
-    Object.defineProperty(Kuchulem_Areas_Area.prototype, "y", {
-        get: function() {
-            return this._y;
-        },
-        configurable: true
-    });
-
-    /**
-     * The area height
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem_Areas_Area#height
-     */
-    Object.defineProperty(Kuchulem_Areas_Area.prototype, "height", {
-        get: function() {
-            return this._height;
-        },
-        configurable: true
-    });
-
-    /**
-     * The area ID
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem_Areas_Area#id
-     */
-    Object.defineProperty(Kuchulem_Areas_Area.prototype, "id", {
-        get: function() {
-            return this._id;
-        },
-        configurable: true
-    });
-
-    /**
-     * The area map ID
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem_Areas_Area#mapId
-     */
-    Object.defineProperty(Kuchulem_Areas_Area.prototype, "mapId", {
-        get: function() {
-            return this._mapId;
-        },
-        configurable: true
-    });
-
-    /**
-     * The area name
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem_Areas_Area#name
-     */
-    Object.defineProperty(Kuchulem_Areas_Area.prototype, "name", {
-        get: function() {
-            return this._name;
-        },
-        configurable: true
-    });
-
-    /**
-     * The area width
-     *
-     * @readonly
-     * @type {number}
-     * @name Kuchulem_Areas_Area#width
-     */
-    Object.defineProperty(Kuchulem_Areas_Area.prototype, "width", {
-        get: function() {
-            return this._width;
-        },
-        configurable: true
-    });
-
-    /**
-     * Checks if player is in the area
-     * 
-     * @returns {boolean}
-     */
-    Kuchulem_Areas_Area.prototype.isPlayerInside = function() {
-        return this.isInside($gamePlayer.x, $gamePlayer.y);
-    }
-
-    /**
-     * Checks if coodinates are in the area
-     * 
-     * @returns {boolean}
-     */
-    Kuchulem_Areas_Area.prototype.isInside = function(x, y) {
-        const displayX = this._x - $gameMap.displayX();
-        const displayY = this._y - $gameMap.displayY();
-        return (
-            $gameMap.mapId() === this._mapId &&
-            x >= displayX &&
-            y >= displayY &&
-            x < displayX + this._width &&
-            y < displayY + this._height
-        );
-    }
-    //#endregion
-
     //#region Game_Map extensions
     /**
      * Gets an area from the current map
@@ -267,6 +267,6 @@ if (!Kuchulem) {
         });
     }
 
-    $eventsPublisher.on(Game_Map.events.afterSetup, Game_Map, loadAreas);
+    $eventsPublisher.on(Game_Map_events.afterSetup, Game_Map, loadAreas);
     //#endregion
 })();

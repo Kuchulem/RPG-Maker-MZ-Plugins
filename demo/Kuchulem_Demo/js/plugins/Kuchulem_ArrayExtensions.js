@@ -22,7 +22,7 @@
         }
 
         return this[0];
-    }
+    };
 
     /**
      * Gets the last element of the array. If a predicate is provided, returs
@@ -38,7 +38,7 @@
         }
 
         return this[this.length - 1];
-    }
+    };
 
     /**
      * Checks if any element is in the array. If a predicate is provided,
@@ -51,9 +51,9 @@
      */
     Array.prototype.any = function() {
         if (arguments.length > 0) {
-            return this.filter(...arguments).any();
+            return this.some(...arguments);
         }
 
         return this.length > 0;
-    }
+    };
 })();
