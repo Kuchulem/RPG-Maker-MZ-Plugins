@@ -150,6 +150,7 @@ if (!Kuchulem) {
  * @text Radius
  * @type number
  * @min 0
+ * @decimals 1
  * @desc The radius of the player sight
  *
  * @param brightness
@@ -179,12 +180,16 @@ if (!Kuchulem) {
  * @param width
  * @text Width or radius
  * @type number
+ * @min 0
+ * @decimals 1
  * @desc Width or radius of the light source (in number of tiles). You can use
  *       a real number (1, 2.5, etc.)
  * 
  * @param height
  * @text Height
  * @type number
+ * @min 0
+ * @decimals 1
  * @desc height of the light source (in number of tiles). You can use a real 
  *       number (1, 2.5, etc.). Not used if shape is "circle".
  * 
@@ -285,14 +290,14 @@ Sprite_Lights.prototype.updatePosition = function() {
     $gameMap.areas().forEach(a => {
         this.updateAreaPosition(a);
     });
-    $gameMap.lighting().lightSources.forEach(ls => 
+    $gameMap.lighting().lightSources().forEach(ls => 
         this.updateLightSourcePosition(ls)
     );
-    $gameMap.lighting().highlights.forEach(ls => 
+    $gameMap.lighting().highlights().forEach(ls => 
         this.updateHighlightPosition(ls)
     );
-    this.updatePlayerSightPosition($gameMap.lighting().playerSight);
-    $gameMap.lighting().playerLights.forEach(ls => 
+    this.updatePlayerSightPosition($gameMap.lighting().playerSight());
+    $gameMap.lighting().playerLights().forEach(ls => 
         this.updatePlayerLightPosition(ls)
     );
 };
@@ -307,28 +312,29 @@ Sprite_Lights.prototype.getAreaFixedPosition = function(x, y, width, height, sho
         y: fixedY,
         width: fixedWidth,
         height: fixedHeight,
-        shouldDraw: shouldDraw && (fixedX + fixedWidth) > 0 && (fixedY + fixedHeight > 0)
+        shouldDraw: true
     }
 };
 
 Sprite_Lights.prototype.getLightFixedPosition = function(lightSource) {
-    if (!lightSource || !lightSource.isOn) {
+    if (!lightSource || !lightSource.isOn()) {
         return {
             shouldDraw: false
         };
     }
 
-    const fixedWidth = lightSource.width * $dataSystem.tileSize;
-    const fixedHeight = lightSource.height * $dataSystem.tileSize;
-    const fixedX = lightSource.x - fixedWidth / 2;
-    const fixedY = lightSource.y - fixedHeight / 2;
-    console.log(lightSource.x, lightSource.y, fixedX, fixedY);
+    const fixedWidth = lightSource.width() * $dataSystem.tileSize;
+    const fixedHeight = lightSource.height() * $dataSystem.tileSize;
+    const divider = lightSource.shape() === "circle" ? 1 : 2;
+    const fixedX = lightSource.x() - fixedWidth / divider;
+    const fixedY = lightSource.y() - fixedHeight / divider;
+
     return {
         x: fixedX,
         y: fixedY,
         width: fixedWidth,
         height: fixedHeight,
-        shouldDraw: (fixedX + fixedWidth) > 0 && (fixedY + fixedHeight > 0)
+        shouldDraw: true
     }
 };
 
@@ -341,11 +347,11 @@ Sprite_Lights.prototype.updateAreaPosition = function(area) {
 }
 
 Sprite_Lights.prototype.updateLightSourcePosition = function(lightSource) {
-    this._lightSourcesPositions[lightSource.name] = this.getLightFixedPosition(lightSource);
+    this._lightSourcesPositions[lightSource.name()] = this.getLightFixedPosition(lightSource);
 };
 
 Sprite_Lights.prototype.updateHighlightPosition = function(highlight) {
-    this._highlightsPositions[highlight.name] = this.getLightFixedPosition(highlight);
+    this._highlightsPositions[highlight.name()] = this.getLightFixedPosition(highlight);
 };
 
 Sprite_Lights.prototype.updatePlayerSightPosition = function(playerSight) {
@@ -356,11 +362,11 @@ Sprite_Lights.prototype.updatePlayerSightPosition = function(playerSight) {
         return;
     }
     
-    const fixedWidth = playerSight.radius * $dataSystem.tileSize;
-    const fixedHeight = playerSight.radius * $dataSystem.tileSize;
+    const fixedWidth = playerSight.radius() * $dataSystem.tileSize;
+    const fixedHeight = playerSight.radius() * $dataSystem.tileSize;
     this._playerSightPosition = {
-        x: parseInt($gamePlayer.screenX() - fixedWidth / 2),
-        y: parseInt($gamePlayer.screenY() - $dataSystem.tileSize / 2 - fixedHeight / 2),
+        x: parseInt($gamePlayer.screenX() - fixedWidth),
+        y: parseInt($gamePlayer.screenY() - fixedHeight - $dataSystem.tileSize / 2),
         width: fixedWidth,
         height: fixedHeight,
         shouldDraw: true
@@ -368,7 +374,7 @@ Sprite_Lights.prototype.updatePlayerSightPosition = function(playerSight) {
 };
 
 Sprite_Lights.prototype.updatePlayerLightPosition = function(playerLight) {
-    this._playerLightPositions[playerLight.lightSource.name] = this.getLightFixedPosition(playerLight.lightSource);
+    this._playerLightPositions[playerLight.lightSource.name()] = this.getLightFixedPosition(playerLight.lightSource);
 };
 
 /**
@@ -377,20 +383,20 @@ Sprite_Lights.prototype.updatePlayerLightPosition = function(playerLight) {
  */
 Sprite_Lights.prototype.updateBitmap = function() {
     this.bitmap.clear();
-    this._globalColor = $gameMapLighting.getFrameColor($gameMap.lighting().global, this._globalColor);
+    this._globalColor = $gameMapLighting.getFrameColor($gameMap.lighting().global(), this._globalColor);
     if (this._globalColor) {
         this.bitmap.fillAll(this._globalColor.toRgba());
     }
-    if ($gameMap.lighting().playerSight) {
-        this.drawPlayerSight($gameMap.lighting().playerSight);
+    if ($gameMap.lighting().playerSight()) {
+        this.drawPlayerSight($gameMap.lighting().playerSight());
     }
-    $gameMap.lighting().lightSources.forEach(ls => {
+    $gameMap.lighting().lightSources().forEach(ls => {
         this.drawLightSource(ls);
     });
-    $gameMap.lighting().playerLights.forEach(pl => {
+    $gameMap.lighting().playerLights().forEach(pl => {
         this.drawPlayerLight(pl);
     });
-    $gameMap.lighting().highlights.forEach(ls => {
+    $gameMap.lighting().highlights().forEach(ls => {
         this.drawHighlight(ls);
     });
 };
@@ -402,13 +408,13 @@ Sprite_Lights.prototype.updateBitmap = function() {
  */
 Sprite_Lights.prototype.drawLightSource = function(lightSource) {
 
-    const fixedPosition = this._lightSourcesPositions[lightSource.name];
+    const fixedPosition = this._lightSourcesPositions[lightSource.name()];
 
     if (!fixedPosition.shouldDraw) {
         return;
     }
 
-    this.drawLight(fixedPosition, lightSource.color, lightSource.shape);
+    this.drawLight(fixedPosition, lightSource.color(), lightSource.shape());
 };
 
 /**
@@ -418,13 +424,13 @@ Sprite_Lights.prototype.drawLightSource = function(lightSource) {
  */
 Sprite_Lights.prototype.drawHighlight = function(highlight) {
 
-    const fixedPosition = this._highlightsPositions[highlight.name];
+    const fixedPosition = this._highlightsPositions[highlight.name()];
 
     if (!fixedPosition.shouldDraw) {
         return;
     }
 
-    this.drawLight(fixedPosition, highlight.color, highlight.shape, "hard-light");
+    this.drawLight(fixedPosition, highlight.color(), highlight.shape(), "hard-light");
 };
 
 Sprite_Lights.prototype.drawPlayerSight = function(playerSight) {
@@ -432,19 +438,19 @@ Sprite_Lights.prototype.drawPlayerSight = function(playerSight) {
         return;
     }
     
-    const color = new Kuchulem_MapLighting_Color(0, 0, 0, playerSight.brightness);
+    const color = new Kuchulem_MapLighting_Color(0, 0, 0, playerSight.brightness());
     this.drawLight(this._playerSightPosition, color, "circle", "destination-out");
 };
 
 Sprite_Lights.prototype.drawPlayerLight = function(playerLight) {
-    const fixedPosition = this._playerLightPositions[playerLight.lightSource.name];
+    const fixedPosition = this._playerLightPositions[playerLight.lightSource.name()];
 
     if (!fixedPosition.shouldDraw) {
         return;
     }
     
-    this.drawLight(this._playerLightPositions[playerLight.lightSource.name], playerLight.lightSource.color, playerLight.lightSource.shape, "destination-out");
-    this.drawLight(this._playerLightPositions[playerLight.lightSource.name], playerLight.highlight.color, playerLight.lightSource.shape, "hard-light");
+    this.drawLight(this._playerLightPositions[playerLight.lightSource.name()], playerLight.lightSource.color(), playerLight.lightSource.shape(), "destination-out");
+    this.drawLight(this._playerLightPositions[playerLight.lightSource.name()], playerLight.highlight.color(), playerLight.lightSource.shape(), "hard-light");
 };
 
 /**
@@ -469,8 +475,8 @@ Sprite_Lights.prototype.drawLight = function(position, color, shape, operation="
             );
             break;
         case "circle":
-            const centerX = position.x + position.width / 2;
-            const centerY = position.y + position.width / 2;
+            const centerX = position.x + position.width;
+            const centerY = position.y + position.width;
             var area = $gameMap.areas().first(a => a.isInside(centerX / $dataSystem.tileSize, centerY / $dataSystem.tileSize));
             if (!!area) {
                 const areas = $gameMap.areas().filter(a => a.name === area.name);
@@ -482,17 +488,17 @@ Sprite_Lights.prototype.drawLight = function(position, color, shape, operation="
                 this.bitmap.context.clip(region);
             } 
             const gradient = this.bitmap.context.createRadialGradient(
-                centerX, centerY, position.width / 4, centerX, centerY, (position.width / 2) - 1);
+                centerX, centerY, position.width / 3, centerX, centerY, position.width - 1);
 
             gradient.addColorStop(0, color.toRgba());
             gradient.addColorStop(1, color.toRgba(0));
             this.bitmap.context.fillStyle = gradient;
             this.bitmap.context.beginPath();
-            this.bitmap.context.arc(centerX, centerY, position.width / 2, 0, Math.PI * 2);
+            this.bitmap.context.arc(centerX, centerY, position.width, 0, Math.PI * 2);
             this.bitmap.context.fill();
             break;
         default:
-            throw ["InvalidLight", lightSource.shape, "Invalid light shape"]
+            throw ["InvalidLight", lightSource.shape(), "Invalid light shape"]
     }
     this.bitmap.context.globalCompositeOperation = previousOperation
     this.bitmap.context.restore();
@@ -555,7 +561,7 @@ Kuchulem_MapLighting.prototype.initialize = function(parameters) {
         return {
             lightSource: new Kuchulem_MapLighting_LightSource(
                 light.name || `Kuchulem_playerLight_${index + 1}`, 
-                () => { return { x: $gamePlayer.screenX(), y: $gamePlayer.screenY() }},
+                "$gamePlayer",
                 light.shape, 
                 Number(light.width), Number(light.height), 
                 new Kuchulem_MapLighting_Color(255, 255, 255, Number(light.brightness)),
@@ -563,7 +569,7 @@ Kuchulem_MapLighting.prototype.initialize = function(parameters) {
             ),
             highlight: new Kuchulem_MapLighting_LightSource(
                 light.name || `Kuchulem_playerLight_${index + 1}`, 
-                () => { return { x: $gamePlayer.screenX(), y: $gamePlayer.screenY() }},
+                "$gamePlayer",
                 light.shape, 
                 Number(light.width), Number(light.height), 
                 new Kuchulem_MapLighting_Color(
@@ -578,54 +584,34 @@ Kuchulem_MapLighting.prototype.initialize = function(parameters) {
     this._mapsLightings = [];
 };
 
+
 /**
  * The default player sight
- *
- * @readonly
- * @type {Kuchulem_MapLighting}
- * @name Kuchulem_MapLighting#defaultPlayerSight
+ * 
+ * @returns {Kuchulem_MapLighting_PlayerSight}
  */
-Object.defineProperty(Kuchulem_MapLighting.prototype, "defaultPlayerSight", {
-    get: function() {
-        return this._defaultPlayerSight;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting.prototype.defaultPlayerSight = function() { return this._defaultPlayerSight; };
 
 /**
  * The default lighting
  *
- * @readonly
- * @type {Kuchulem_MapLighting}
- * @name Kuchulem_MapLighting#defaultLighting
+ * @returns {Kuchulem_MapLighting_LightStep[]}
  */
-Object.defineProperty(Kuchulem_MapLighting.prototype, "defaultLighting", {
-    get: function() {
-        return this._defaultLighting;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting.prototype.defaultLighting = function() { return this._defaultLighting; };
 
 /**
  * The player lights
  *
- * @readonly
- * @type {Kuchulem_MapLighting}
- * @name Kuchulem_MapLighting#playerLights
+ * @returns {Kuchulem_MapLighting_LightSource[]}
  */
-Object.defineProperty(Kuchulem_MapLighting.prototype, "playerLights", {
-    get: function() {
-        return this._playerLights;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting.prototype.playerLights = function() { return this._playerLights; };
 
 Kuchulem_MapLighting.prototype.getMapLighting = function(mapId) {
-    if (!this._mapsLightings.any(ml => ml.mapId === mapId)) {
+    if (!this._mapsLightings.any(ml => ml.mapId() === mapId)) {
         this._mapsLightings.push(Kuchulem_MapLighting_Lighting.load(mapId));
     }
 
-    return this._mapsLightings.first(ml => ml.mapId === mapId);
+    return this._mapsLightings.first(ml => ml.mapId() === mapId);
 }
 
 /**
@@ -639,10 +625,10 @@ Kuchulem_MapLighting.prototype.getMapLighting = function(mapId) {
 Kuchulem_MapLighting.prototype.calculateFrameColorChange = function(previousStep, nextStep) {
     const nbFrames = (nextStep.time().toMinutes() - previousStep.time().toMinutes()) * $gameClock.framesPerMinute;
     return [
-        parseFloat((nextStep.color().red - previousStep.color().red) / nbFrames),
-        parseFloat((nextStep.color().green - previousStep.color().green) / nbFrames),
-        parseFloat((nextStep.color().blue - previousStep.color().blue) / nbFrames),
-        parseFloat((nextStep.color().alpha - previousStep.color().alpha) / nbFrames),
+        parseFloat((nextStep.color().red() - previousStep.color().red()) / nbFrames),
+        parseFloat((nextStep.color().green() - previousStep.color().green()) / nbFrames),
+        parseFloat((nextStep.color().blue() - previousStep.color().blue()) / nbFrames),
+        parseFloat((nextStep.color().alpha() - previousStep.color().alpha()) / nbFrames),
     ];
 };
 
@@ -676,10 +662,10 @@ Kuchulem_MapLighting.prototype.getFrameColor = function(steps, previousColor) {
     var change = this.calculateFrameColorChange(previousStep, nextStep);
 
     return new Kuchulem_MapLighting_Color(
-        (previousColor.red + change[0]).clamp(0, 255),
-        (previousColor.green + change[1]).clamp(0, 255),
-        (previousColor.blue + change[2]).clamp(0, 255),
-        (previousColor.alpha + change[3]).clamp(0, 1),
+        (previousColor.red() + change[0]).clamp(0, 255),
+        (previousColor.green() + change[1]).clamp(0, 255),
+        (previousColor.blue() + change[2]).clamp(0, 255),
+        (previousColor.alpha() + change[3]).clamp(0, 1),
     );
 };
 
@@ -747,58 +733,30 @@ function Kuchulem_MapLighting_Color(red = 0, green = 0, blue = 0, alpha = 0) {
 /**
  * The amount of red in the color
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_Color#red
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_Color.prototype, "red", {
-    get: function() {
-        return this._red;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_Color.prototype.red = function() { return this._red; };
 
 /**
  * The amount of green in the color
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_Color#green
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_Color.prototype, "green", {
-    get: function() {
-        return this._green;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_Color.prototype.green = function() { return this._green; };
 
 /**
  * The amount of blue in the color
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_Color#blue
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_Color.prototype, "blue", {
-    get: function() {
-        return this._blue;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_Color.prototype.blue = function() { return this._blue; };
 
 /**
  * The amount of alpha in the color
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_Color#alpha
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_Color.prototype, "alpha", {
-    get: function() {
-        return this._alpha;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_Color.prototype.alpha = function() { return this._alpha; };
 
 /**
  * Converts the color object to an array usable by $gameScreen.startTint
@@ -860,90 +818,6 @@ Kuchulem_MapLighting_Color.fromArray = function(color) {
 };
 //#endregion 
 
-//#region Kuchulem_MapLighting_Tone class definition
-/**
- * Represents a tone, as a color modificator
- * 
- * @class
- * @constructor
- * @param {number} red 
- * @param {number} green 
- * @param {number} blue 
- * @param {number} alpha 
- */
-function Kuchulem_MapLighting_Tone(red = 0, green = 0, blue = 0, alpha = 0) {
-    if (
-        red <= 255 && red >= -255 &&
-        green <= 255 && green >= -255 &&
-        blue <= 255 && blue >= -255 &&
-        alpha <= 1 && alpha >= -1
-    ) {
-        this._red = red;
-        this._green = green;
-        this._blue = blue;
-        this._alpha = alpha;
-    } else {
-        throw ["InvalidTone", this, `An invalid value for tone tone was provided : ${red}, ${green}, ${blue}, ${alpha}`];
-    }
-}
-
-/**
- * The amount of red in the tone
- * 
- * @returns {number}
- */
-Kuchulem_MapLighting_Tone.prototype.red = function() { return this._red; };
-
-/**
- * The amount of green in the tone
- * 
- * @returns {number}
- */
-Kuchulem_MapLighting_Tone.prototype.green = function() { return this._green; };
-
-/**
- * The amount of blue in the tone
- * 
- * @returns {number}
- */
-Kuchulem_MapLighting_Tone.prototype.blue = function() { return this._blue; };
-
-/**
- * The alpha channel in the tone
- * 
- * @returns {number}
- */
-Kuchulem_MapLighting_Tone.prototype.alpha = function() { return this._alpha; };
-
-/**
- * Converts the tone object to an array usable by $gameScreen.startTint
- * 
- * @returns {Array}
- */
-Kuchulem_MapLighting_Tone.prototype.toArray = function() {
-    return [this._red, this._green, this._blue, this._alpha];
-};
-
-/**
- * Applies the tone to a color and returns the resulting color
- * 
- * @param {Kuchulem_MapLighting_Color} color
- * 
- * @return {Kuchulem_MapLighting_Color}
- */
-Kuchulem_MapLighting_Tone.prototype.applyTo = function(color) {
-    if (!(color instanceof Kuchulem_MapLighting_Color)) {
-        throw ["Not a color", color];
-    }
-    return new Kuchulem_MapLighting_Color(
-        (backgroundColor.red + this.red).clamp(0, 255),
-        (backgroundColor.green + this.green).clamp(0, 255),
-        (backgroundColor.blue + this.blue).clamp(0, 255),
-        (backgroundColor.alpha + this.alpha).clamp(0, 1),
-    );
-};
-//#endregion
-
 //#region Kuchulem_MapLighting_PlayerSight class definition
 function Kuchulem_MapLighting_PlayerSight(radius, brightness) {
     this.initialize(radius, brightness);
@@ -957,31 +831,15 @@ Kuchulem_MapLighting_PlayerSight.prototype.initialize = function(radius, brightn
 /**
  * The radius
  *
- * @readonly
- * @type {string}
- * @name Kuchulem_MapLighting_PlayerSight#radius
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_PlayerSight.prototype, "radius", {
-    get: function() {
-        return this._radius;
-    },
-    configurable: true
-});
-
+Kuchulem_MapLighting_PlayerSight.prototype.radius = function() { return this._radius; };
 /**
  * The brightness
- *
- * @readonly
- * @type {string}
- * @name Kuchulem_MapLighting_PlayerSight#brightness
+ * 
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_PlayerSight.prototype, "brightness", {
-    get: function() {
-        return this._brightness;
-    },
-    configurable: true
-});
-
+Kuchulem_MapLighting_PlayerSight.prototype.brightness = function() { return this._brightness; };
 
 //#endregion
 
@@ -1053,114 +911,85 @@ Kuchulem_MapLighting_LightSource.prototype.initialize = function(
 /**
  * The light source name
  *
- * @readonly
- * @type {string}
- * @name Kuchulem_MapLighting_LightSource#name
+ * @returns {string}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "name", {
-    get: function() {
-        return this._name;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.name = function() { return this._name; };
+
+/**
+ * The light source origin
+ *
+ * @returns {object}
+ */
+Kuchulem_MapLighting_LightSource.prototype.origin = function() {
+    if (this._origin instanceof Game_Event && this._origin["@"]) {
+        this._origin = $gameMap.event(this._origin._eventId)
+    }
+
+    if (this._origin instanceof Game_Player && this._origin["@"]) {
+        this._origin = $gamePlayer;
+    }
+
+    if (typeof(this._origin) === typeof("")) {
+        this._origin = window[this._origin];
+    }
+
+    if (!this._origin) {
+        throw ["LightSourceNullOrUndefinedOrigin", this._name, "The light source origin is null or undefined"];
+    }
+    
+    return this._origin ;
+};
 
 /**
  * The light source X coordinate
  *
- * @readonly
- * @type {Function}
- * @name Kuchulem_MapLighting_LightSource#origin
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "x", {
-    get: function() {
-        return this._origin().x;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.x = function() { return this.origin().screenX(); };
 
 /**
  * The light source Y coordinate
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_LightSource#y
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "y", {
-    get: function() {
-        return this._origin().y;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.y = function() { return this.origin().screenY(); };
 
 /**
  * The light source shape
  *
- * @readonly
- * @type {string}
- * @name Kuchulem_MapLighting_LightSource#shape
+ * @returns {string}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "shape", {
-    get: function() {
-        return this._shape;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.shape = function() { return this._shape; };
 
 /**
  * The light source width
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_LightSource#width
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "width", {
-    get: function() {
-        return this._width;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.width = function() { return this._width; };
 
 /**
  * The light source height
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_LightSource#height
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "height", {
-    get: function() {
-        return this._height;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.height = function() { return this._height; };
 
 /**
  * The light source color
  *
- * @readonly
- * @type {Kuchulem_MapLighting_Color}
- * @name Kuchulem_MapLighting_LightSource#color
+ * @returns {Kuchulem_MapLighting_Color}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "color", {
-    get: function() {
-        return this._color;
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.color = function() { return this._color; };
 
 /**
  * Wether the light source is ON (lighted) or OFF (unlighted)
  *
- * @readonly
- * @type {string}
- * @name Kuchulem_MapLighting_LightSource#isOn
+ * @returns {boolean}
  */
-Object.defineProperty(Kuchulem_MapLighting_LightSource.prototype, "isOn", {
-    get: function() {
-        return !this._switchId || $gameSwitches.value(this._switchId);
-    },
-    configurable: true
-});
+Kuchulem_MapLighting_LightSource.prototype.isOn = function() {
+    return !this._switchId || $gameSwitches.value(this._switchId);
+};
 //#endregion
 
 //#region Kuchulem_MapLighting_LightStep class definition
@@ -1241,123 +1070,101 @@ Kuchulem_MapLighting_Lighting.prototype.initialize = function(mapId, globalLight
 /**
  * The Map ID
  *
- * @readonly
- * @type {number}
- * @name Kuchulem_MapLighting_Lighting#mapId
+ * @returns {number}
  */
-Object.defineProperty(Kuchulem_MapLighting_Lighting.prototype, "mapId", {
-    get: function() {
-        return this._mapId;
-    },
-    configurable: true
-});
-
+Kuchulem_MapLighting_Lighting.prototype.mapId = function() { return this._mapId; };
 /**
  * The Global lighting
- *
- * @readonly
- * @type {Kuchulem_MapLighting_LightStep[]}
- * @name Kuchulem_MapLighting_Lighting#global
+ * 
+ * @returns {Kuchulem_MapLighting_LightStep[]}
  */
-Object.defineProperty(Kuchulem_MapLighting_Lighting.prototype, "global", {
-    get: function() {
-        return this._globalLighting;
-    },
-    set: function(value) {
+Kuchulem_MapLighting_Lighting.prototype.global = function(value) {
+    if (!!value) {
         if (!(value instanceof Array) || value.any(ls => !(ls instanceof Kuchulem_MapLighting_LightStep))) {
             throw ["InvalidGlobalLighting", value, "An invalid global lighting was set to map lighting"];
         }
+
         this._globalLighting = value;
-    },
-    configurable: true
-});
+    }
+
+    return this._globalLighting;
+};
 
 /**
  * The light sources
  *
- * @readonly
- * @type {Kuchulem_MapLighting_LightSource[]}
- * @name Kuchulem_MapLighting_Lighting#lightSources
+ * @returns {Kuchulem_MapLighting_LightSource[]}
  */
-Object.defineProperty(Kuchulem_MapLighting_Lighting.prototype, "lightSources", {
-    get: function() {
-        return this._lightSources;
-    },
-    set: function(value) {
+Kuchulem_MapLighting_Lighting.prototype.lightSources = function(value) {
+    if (!!value) {
         if (!(value instanceof Array) || value.any(ls => !(ls instanceof Kuchulem_MapLighting_LightSource))) {
             throw ["InvalidLightSources", value, "Invalid Light sources were set to map lighting"];
         }
+
         this._lightSources = value;
-    },
-    configurable: true
-});
+    }
+    
+    return this._lightSources;
+};
 
 /**
  * The highlights
  *
- * @readonly
- * @type {Kuchulem_MapLighting_LightSource[]}
- * @name Kuchulem_MapLighting_Lighting#highlights
+ * @returns {Kuchulem_MapLighting_LightSource[]}
  */
-Object.defineProperty(Kuchulem_MapLighting_Lighting.prototype, "highlights", {
-    get: function() {
-        return this._highlights;
-    },
-    set: function(value) {
+Kuchulem_MapLighting_Lighting.prototype.highlights = function(value) {
+    if (!!value) {
         if (!(value instanceof Array) || value.any(ls => !(ls instanceof Kuchulem_MapLighting_LightSource))) {
             throw ["InvalidHighlight", value, "Invalid highlights were set to map lighting"];
         }
+
         this._highlights = value;
-    },
-    configurable: true
-});
+    }
+    
+    return this._highlights;
+};
 
 /**
  * The player light
  *
- * @readonly
- * @type {Kuchulem_MapLighting_LightSource[]}
- * @name Kuchulem_MapLighting_Lighting#playerLight
+ * @returns {Kuchulem_MapLighting_LightSource[]}
  */
-Object.defineProperty(Kuchulem_MapLighting_Lighting.prototype, "playerLights", {
-    get: function() {
-        return this._playerLights;
-    },
-    set: function(value) {
-        if (!(value instanceof Array) || value.any(pl => !(pl.lightSource instanceof Kuchulem_MapLighting_LightSource))) {
+Kuchulem_MapLighting_Lighting.prototype.playerLights = function(value) {
+    if (!!value) {
+        if (!(value instanceof Array) || value.any(ls => !(ls instanceof Kuchulem_MapLighting_LightSource))) {
             throw ["InvalidPlayerLight", value, "Invalid player light was set to map lighting"];
         }
+
         this._playerLights = value;
-    },
-    configurable: true
-});
+    }
+    
+    return this._playerLights;
+};
 
 /**
  * The player sight
  *
- * @readonly
- * @type {Kuchulem_MapLighting_PlayerSight}
- * @name Kuchulem_MapLighting_Lighting#playerSight
+ * @param {Kuchulem_MapLighting_PlayerSight}
+ * @returns {Kuchulem_MapLighting_PlayerSight}
  */
-Object.defineProperty(Kuchulem_MapLighting_Lighting.prototype, "playerSight", {
-    get: function() {
-        return this._playerSight;
-    },
-    set: function(value) {
+Kuchulem_MapLighting_Lighting.prototype.playerSight = function(value) {
+    if (!!value) {
         if (!(value instanceof Kuchulem_MapLighting_PlayerSight)) {
             throw ["InvalidPlayerSight", value, "Invalid player sight was set to map lighting"];
         }
+
         this._playerSight = value;
-    },
-    configurable: true
-});
+    }
+    
+    return this._playerSight;
+};
 
 Kuchulem_MapLighting_Lighting.load = function(mapId) {
     return new Kuchulem_MapLighting_Lighting(
         mapId,
-        $gameMapLighting.defaultLighting, 
-        $gameMapLighting.playerLights,
-        $gameMapLighting.defaultPlayerSight,
+        $gameMapLighting.defaultLighting(), 
+        $gameMapLighting.playerLights(),
+        $gameMapLighting.defaultPlayerSight(),
         [], []
     )
 };
@@ -1407,27 +1214,27 @@ Kuchulem_MapLighting_Lighting.load = function(mapId) {
         let existing = null;
 
         if (brightness > 0) {
-            if (existing = $gameMap.lighting().lightSources.first(l => l.name === name)) {
-                $gameMap.lighting().lightSources.splice($gameMap.lighting().lightSources.indexOf(existing), 1);
+            if (existing = $gameMap.lighting().lightSources().first(l => l.name() === name)) {
+                $gameMap.lighting().lightSources().splice($gameMap.lighting().lightSources().indexOf(existing), 1);
             }
-            $gameMap.lighting().lightSources.push(new Kuchulem_MapLighting_LightSource(
+            $gameMap.lighting().lightSources().push(new Kuchulem_MapLighting_LightSource(
                 `EV${ event.eventId() }_LightSource_${event.event().name}${!!name ? '_' : ''}${name}`,
-                () => { return { x: event.screenX(), y: event.screenY() } },
+                event,
                 shape,
                 width, height,
                 new Kuchulem_MapLighting_Color(255, 255, 255, brightness),
                 switchId
             ));
         }
-        if (highlightColor.alpha > 0) {
+        if (highlightColor.alpha() > 0) {
         
-            if (existing = $gameMap.lighting().highlights.first(h => h.name === name)) {
-                $gameMap.lighting().highlights.splice($gameMap.lighting().highlights.indexOf(existing), 1);
+            if (existing = $gameMap.lighting().highlights().first(h => h.name() === name)) {
+                $gameMap.lighting().highlights().splice($gameMap.lighting().highlights().indexOf(existing), 1);
             }
 
-            $gameMap.lighting().highlights.push(new Kuchulem_MapLighting_LightSource(
+            $gameMap.lighting().highlights().push(new Kuchulem_MapLighting_LightSource(
                 `EV${ event.eventId() }_Highlight_${ event.event().name }${ !!name ? '_' : '' }${ name }`,
-                () => { return { x: event.screenX(), y: event.screenY() } },
+                event,
                 shape,
                 width, height,
                 highlightColor,
@@ -1447,14 +1254,14 @@ Kuchulem_MapLighting_Lighting.load = function(mapId) {
             )
         });
 
-        $gameMap.lighting().global = lightSteps;
+        $gameMap.lighting().global(lightSteps);
     };
 
     const setPlayerSight = function(args) {
-        $gameMap.lighting().playerSight = new Kuchulem_MapLighting_PlayerSight(
+        $gameMap.lighting().playerSight(new Kuchulem_MapLighting_PlayerSight(
             Number(args.radius),
             Number(args.brightness)
-        );
+        ));
     };
 
     PluginManager.registerCommand(pluginName, "setLightSource", setLightSource);
