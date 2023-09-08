@@ -655,12 +655,19 @@ Kuchulem_GameTime_Clock.prototype._saveTime = function() {
     Kuchulem.createGameObject("$gameClock", new Kuchulem_GameTime_Clock(), true);
     //#endregion
 
+    //#region Spriteset_Base extension
+    /**
+     * Extends the Spriteset_Base.prototype.createUpperLayer to add an event
+     */
+    const Spriteset_Base_update = Spriteset_Base.prototype.update;
+    Spriteset_Base.prototype.update = function() {
+        this._clock = new Sprite_Clock();
+        this.addChild(this._clock);
+        Spriteset_Base_update.call(this, ...arguments);
+    };
+    //#endregion
+
     //#region Events
-    $eventsPublisher.on(Spriteset_Base_events.beforeCreateUpperLayer, Spriteset_Base, spriteset => {
-        spriteset._clock = new Sprite_Clock();
-        spriteset.addChild(spriteset._clock);
-    });
-    
     $eventsPublisher.on(Game_Map_events.beforeUpdate, Game_Map, () => {
         $gameClock.refresh();
     });
