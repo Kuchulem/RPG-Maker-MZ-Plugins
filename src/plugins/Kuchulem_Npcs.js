@@ -44,7 +44,6 @@ if (!Kuchulem) {
  * 
  * @arg eventId
  * @text Event ID
- * @min 1
  * @type event
  * @desc The event attached to this NPC
  * 
@@ -58,6 +57,19 @@ if (!Kuchulem) {
  *       editor. Every other behaviours will stay the same.
  *       Other plugins may rely on that association when using commands in 
  *       an event associated to an NPC.
+ * 
+ * @command undefineNpc
+ * @text Undefine NPC
+ * @desc Removes the association between the current event and its NPC.
+ * 
+ * @command undefineNpcEvent
+ * @text Unefine Npc Event
+ * @desc Removes the association between the selected event and its NPC.
+ * 
+ * @arg eventId
+ * @text Event ID
+ * @type event
+ * @desc The event attached to be undefined.
  * 
  * @arg npcId
  * @text NPC ID
@@ -304,6 +316,7 @@ function Kuchulem_Npcs_GameNpcs() {
  */
 Kuchulem_Npcs_GameNpcs.prototype.initialize = function() {
     this._npcs = [];
+    this._npcEvents = [];
 };
 
 /**
@@ -348,49 +361,44 @@ Kuchulem_Npcs_GameNpcs.prototype.npc = function(npcId) {
 };
 
 /**
+ * Gets an NPC by its ID.
+ * Returns null if no NPC is found
+ * 
+ * @param {number} npcId 
+ * @returns 
+ */
+Kuchulem_Npcs_GameNpcs.prototype.npcEvent = function(eventId) {
+    this._tryLoadNpcs();
+
+    const npcEvent = this._npcEvents.first(ne => ne[1] === $gameMap.mapId() && ne[2] === eventId);
+
+    if (!!npcEvent) {
+        return this.npc(npcEvent[0]);
+    }
+};
+
+/**
  * Associates a game event to an npc.
  * 
  * @param {object} args 
  */
-Kuchulem_Npcs_GameNpcs.defineNpcEvent = function(args) {
-    const eventId = Number(args.eventId);
-    const npcId = Number(args.npcId);
-    const event = $gameMap.event(eventId);
-    event._npc = $gameNpcs.npc(npcId);
-};
+Kuchulem_Npcs_GameNpcs.prototype.setNpcEvent = function(npcId, mapId, eventId) {
+    const npcEvent = [npcId, mapId, eventId];
+    this.unsetNpcEvent(mapId, eventId);
 
-
-/**
- * Associates the current game event to an npc.
- * 
- * @param {object} args 
- */
-Kuchulem_Npcs_GameNpcs.defineNpc = function(args) {
-    Kuchulem_Npcs_GameNpcs.defineNpcEvent.call(this, {
-        npcId: Number(args.npcId),
-        eventId: this.eventId()
-    });
+    this._npcEvents.push(npcEvent);
 };
 
 /**
- * Changes the appearence of an NPC
+ * Associates a game event to an npc.
  * 
  * @param {object} args 
  */
-Kuchulem_Npcs_GameNpcs.changeNpcAppearence = function(args) {
-    const npcId = Number(args.npcId);
-    const characterName = String(args.characterName);
-    const characterIndex = Number(args.characterIndex);
-    const faceName = String(args.faceName);
-    const faceIndex = Number(args.faceIndex);
-    const npc = $gameNpcs.npc(npcId);
-    npc.characterName = characterName ?? npc.characterName;
-    npc.characterIndex = characterIndex ?? npc.characterIndex;
-    npc.faceName = faceName ?? npc.faceName;
-    npc.faceIndex = faceIndex ?? npc.faceIndex;
-    // if ($gameMap.npc(npcId)) {
-    //     $gameMap._npc = npc;
-    // }
+Kuchulem_Npcs_GameNpcs.prototype.unsetNpcEvent = function(mapId, eventId) {
+    const index = this._npcEvents.indexOf(this._npcEvents.first(ne => ne[1] === mapId && ne[2] === eventId))
+    if (index > -1) {
+        this._npcEvents.splice(index, 1);
+    }
 };
 //#endregion
 
@@ -402,18 +410,19 @@ Kuchulem_Npcs_GameNpcs.changeNpcAppearence = function(args) {
     const Game_Event_setupPageSettings_base = Game_Event.prototype.setupPageSettings;
     Game_Event.prototype.setupPageSettings = function() {
         Game_Event_setupPageSettings_base.call(this, ...arguments);
-        if (this._pageIndex > 0 && this._npc) {
-            this.setImage(this._npc.characterName, this._npc.characterIndex);
+        const npc = this.npc();
+        if (this._pageIndex > 0 && npc) {
+            this.setImage(npc.characterName, npc.characterIndex);
         }
     };
 
     /**
-     * Gets the NPC associated to that event, if any, null otherwise.
+     * Gets the NPC associated to that event if any, null otherwise.
      * 
      * @returns {Kuchulem_Npcs_Npc}
      */
     Game_Event.prototype.npc = function() {
-        return this._npc ?? null;
+        return $gameNpcs.npcEvent(this.eventId());
     };
     //#region 
     //#region data file and game object registration
@@ -426,8 +435,47 @@ Kuchulem_Npcs_GameNpcs.changeNpcAppearence = function(args) {
 
     //#region commands
 
-    PluginManager.registerCommand(pluginName, "defineNpcEvent", Kuchulem_Npcs_GameNpcs.defineNpcEvent);
-    PluginManager.registerCommand(pluginName, "defineNpc", Kuchulem_Npcs_GameNpcs.defineNpc);
-    PluginManager.registerCommand(pluginName, "changeNpcAppearence", Kuchulem_Npcs_GameNpcs.changeNpcAppearence);
+    const defineNpcEvent = function(args) {
+        const eventId = Number(args.eventId);
+        const npcId = Number(args.npcId);
+        $gameNpcs.setNpcEvent(npcId, $gameMap.mapId(), eventId);
+    }
+
+    const defineNpc = function(args) {
+        defineNpcEvent.call(this, {
+            npcId: Number(args.npcId),
+            eventId: this.eventId()
+        });
+    }
+
+    const undefineNpcEvent = function(args) {
+        const eventId = Number(args.eventId);
+        $gameNpcs.unsetNpcEvent($gameMap.mapId(), eventId);
+    }
+
+    const undefineNpc = function(args) {
+        undefineNpcEvent.call(this, {
+            eventId: this.eventId()
+        });
+    }
+
+    const changeNpcAppearence = function(args) {
+        const npcId = Number(args.npcId);
+        const characterName = String(args.characterName);
+        const characterIndex = Number(args.characterIndex);
+        const faceName = String(args.faceName);
+        const faceIndex = Number(args.faceIndex);
+        const npc = $gameNpcs.npc(npcId);
+        npc.characterName = characterName ?? npc.characterName;
+        npc.characterIndex = characterIndex ?? npc.characterIndex;
+        npc.faceName = faceName ?? npc.faceName;
+        npc.faceIndex = faceIndex ?? npc.faceIndex;
+    };
+
+    PluginManager.registerCommand(pluginName, "defineNpcEvent", defineNpcEvent);
+    PluginManager.registerCommand(pluginName, "defineNpc", defineNpc);
+    PluginManager.registerCommand(pluginName, "undefineNpcEvent", undefineNpcEvent);
+    PluginManager.registerCommand(pluginName, "undefineNpc", undefineNpc);
+    PluginManager.registerCommand(pluginName, "changeNpcAppearence", changeNpcAppearence);
     //#endregion
 })();

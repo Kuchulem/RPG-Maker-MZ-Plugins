@@ -6466,7 +6466,6 @@ JsonEx._encode = function(value, depth) {
         const constructorName = value.constructor.name;
         if (constructorName !== "Object" && constructorName !== "Array") {
             value["@"] = constructorName;
-            console.log(constructorName);
         }
         for (const key of Object.keys(value)) {
             value[key] = this._encode(value[key], depth + 1);
@@ -6480,7 +6479,6 @@ JsonEx._decode = function(value) {
     if (type === "[object Object]" || type === "[object Array]") {
         if (value["@"]) {
             const constructor = window[value["@"]];
-            console.log(constructor, value["@"]);
             if (constructor) {
                 Object.setPrototypeOf(value, constructor.prototype);
             }
