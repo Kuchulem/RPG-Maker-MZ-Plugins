@@ -103,7 +103,6 @@ Speaker.prototype.initialize = function(faceName, faceIndex, name) {
      * Set the NPC as speaker
      */
     Game_Event.prototype.setActorSpeaker = function(actor) {
-        console.log(actor);
         this._speaker = new Speaker(
             actor.faceName(), 
             actor.faceIndex(), 

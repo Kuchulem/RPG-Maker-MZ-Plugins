@@ -4,7 +4,7 @@
     "chromium-args": "--force-color-profile=srgb",
     "window": {
         "title": "Kuchulem's Pugins Demo",
-        "width": 816,
+        "width": 1110,
         "height": 624,
         "position": "center",
         "icon": "icon/icon.png"
