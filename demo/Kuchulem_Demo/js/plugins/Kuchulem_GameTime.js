@@ -279,7 +279,6 @@ Sprite_Clock.prototype.updateBitmap = function() {
  * Redraws the bitmap content
  */
 Sprite_Clock.prototype.redraw = function() {
-    console.log("redraw");
     const text = this.timerClock();
     this.bitmap.clear();
     this.bitmap.drawText(text, 0, 0, 144, 48, "left");

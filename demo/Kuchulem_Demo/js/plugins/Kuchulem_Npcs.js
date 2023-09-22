@@ -471,7 +471,6 @@ Kuchulem_Npcs_GameNpcs.prototype.unsetNpcEvent = function(mapId, eventId) {
     $messageParsers.registerParser(new Kuchulem_Npc_MessageParser());
     //#endregion
 
-
     //#region data file and game object registration
     const parameters = PluginManager.parameters(pluginName);
 
