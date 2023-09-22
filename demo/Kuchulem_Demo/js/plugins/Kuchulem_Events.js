@@ -7,6 +7,9 @@ if (!Kuchulem) {
  * @plugindesc Adds and events publisher on specific methods of RMMZ core classes.
  * @author Kuchulem
  * 
+ * @base Kuchulem_Base
+ * @base Kuchulem_ArrayExtensions
+ * 
  * @help Kuchulem_Events.js
  * 
  * Triggers events on various core classes calls, like update or refresh of the
@@ -231,6 +234,8 @@ Kuchulem_Events_Publisher.offSwitchEvent = function(eventName, switchId, callbac
  * @param {Object} publisherClass 
  */
 Kuchulem_Events_Publisher.prototype.publish = function(eventName, publisher) {
+    if (eventName === Game_Map_events.beforeRefresh) {
+    }
     this._subscribtions.global.filter(
         s => s.eventName === eventName && publisher instanceof s.publisher
     ).forEach(

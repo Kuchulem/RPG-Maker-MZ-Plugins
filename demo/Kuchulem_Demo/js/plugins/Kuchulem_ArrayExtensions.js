@@ -3,6 +3,8 @@
  * @plugindesc Extension methods of the Array object.
  * @author Kuchulem
  *
+ * @base Kuchulem_Base
+ * 
  * @help Kuchulem_ArrayExtensions.js
  * 
  * Adds methods to the Array prototype

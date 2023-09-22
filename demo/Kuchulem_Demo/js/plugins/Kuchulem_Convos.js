@@ -7,6 +7,11 @@ if (!Kuchulem) {
  * @plugindesc Relies on Kuchulem_Npcs plugin to change conversations images.
  * @author Kuchulem
  * 
+ * @base Kuchulem_Base
+ * @base Kuchulem_ArrayExtensions
+ * @base Kuchulem_Events
+ * @base Kuchulem_Npcs
+ * 
  * @help Kuchulem_Convos.js
  * Relies on Kuchulem_Npcs plugin.
  * Provides commands to automatically set the face and name of message to

@@ -6,6 +6,11 @@ if (!Kuchulem) {
  * @target MZ
  * @plugindesc Manages NPCs and affects them to events in maps.
  * @author Kuchulem
+ * 
+ * @base Kuchulem_Base
+ * @base Kuchulem_ArrayExtensions
+ * @base Kuchulem_Messages
+ * @base Kuchulem_Events
  *
  * @help Kuchulem_Npcs.js
  *
@@ -404,7 +409,6 @@ Kuchulem_Npcs_GameNpcs.prototype.unsetNpcEvent = function(mapId, eventId) {
 
 (() => {
     const pluginName = "Kuchulem_Npcs";
-    
 
     //#region Event overloading
     const Game_Event_setupPageSettings_base = Game_Event.prototype.setupPageSettings;
@@ -424,7 +428,50 @@ Kuchulem_Npcs_GameNpcs.prototype.unsetNpcEvent = function(mapId, eventId) {
     Game_Event.prototype.npc = function() {
         return $gameNpcs.npcEvent(this.eventId());
     };
-    //#region 
+    //#endregion
+
+    //#region $messageParsers register
+    function Kuchulem_Npc_MessageParser() {
+        this._regExp = /Npc\{(\w+)\}\[(\d+)\]/;
+    }
+
+    Kuchulem_Npc_MessageParser.prototype = Object.create(Kuchulem_Messages_Parser_Base.prototype);
+    Kuchulem_Npc_MessageParser.prototype.constructor = Kuchulem_Npc_MessageParser;
+
+    Kuchulem_Npc_MessageParser.prototype.matches = function(controlString) {
+        if (!this._regExp.test(controlString)) {
+            return null;
+        }
+
+        const matches = this._regExp.exec(controlString);
+
+        return new Kuchulem_Messages_Parser_Match(this, { info: matches[1], npcId: Number(matches[2])});
+    }
+
+    Kuchulem_Npc_MessageParser.prototype.callback = function() {
+        return function(interpreter, parameter) {
+            const npc = $gameNpcs.npc(parameter.npcId);
+            switch(parameter.info) {
+                case "firstName":
+                    return npc.firstName;
+                case "lastName":
+                    return npc.lastName;
+                case "fullName":
+                    return `\\Npc{firstName}[${npc.id}] \\Npc{lastName}[${npc.id}]`
+                case "FIRSTNAME":
+                    return npc.firstName.toLocaleUpperCase();
+                case "LASTNAME":
+                    return npc.lastName.toLocaleUpperCase();
+                case "FULLNAME":
+                    return `\\Npc{FIRSTNAME}[${npc.id}] \\Npc{LASTNAME}[${npc.id}]`
+            }
+        };
+    }
+
+    $messageParsers.registerParser(new Kuchulem_Npc_MessageParser());
+    //#endregion
+
+
     //#region data file and game object registration
     const parameters = PluginManager.parameters(pluginName);
 
@@ -432,7 +479,6 @@ Kuchulem_Npcs_GameNpcs.prototype.unsetNpcEvent = function(mapId, eventId) {
     Kuchulem.registerDatabaseFile("$dataNpcs", dataFile ?? "Npcs.json");
     Kuchulem.createGameObject("$gameNpcs", new Kuchulem_Npcs_GameNpcs(), true);
     //#endregion
-
     //#region commands
 
     const defineNpcEvent = function(args) {
