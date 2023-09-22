@@ -86,37 +86,6 @@ function Kuchulem() {
     };
 
     /**
-     * Executes the callback with thisArg as this statement when the needed 
-     * game object is created.
-     * 
-     * If thisArg is null or undefined the this statement is the window object.
-     * 
-     * If the game object was already created the callback is immediatly 
-     * called.
-     * 
-     * This allows to remove coupling upon plugins using the 
-     * Kuchulem.createGameObject() method.
-     * 
-     * @param {string} gameObjectName 
-     * @param {Function} callback 
-     * @param {any} thisArg 
-     */
-    Kuchulem.onGameObjectCreated = function(gameObjectName, callback, thisArg) {
-        if (typeof(Kuchulem._gameObjectCreatedListeners) !== typeof([])) {
-            Kuchulem._gameObjectCreatedListeners = [];
-        }
-        if (!!window[gameObjectName]) {
-            callback.call(thisArg ?? window, window[gameObjectName]);
-        } else {
-            Kuchulem._gameObjectCreatedListeners.push([gameObjectName, callback, thisArg]);
-        }
-    }
-
-    Kuchulem.gameObjectCreatedListeners = function(gameObjectName) {
-        return (Kuchulem._gameObjectCreatedListeners ?? []).filter(l => l[0] === gameObjectName);
-    }
-
-    /**
      * Overloads the DataManager.makeSaveContents method to add the game objects
      * created by the Kuchulem.createGameObject method when addToSaves is true.
      */
