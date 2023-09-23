@@ -6,6 +6,11 @@ if (!Kuchulem) {
  * @target MZ
  * @plugindesc Manages in-game time.
  * @author Kuchulem
+ * 
+ * @base Kuchulem_Base
+ * @base Kuchulem_ArrayExtensions
+ * @base Kuchulem_Messages
+ * @base Kuchulem_Events
  *
  * @help Kuchulem_GameTime.js
  *
@@ -194,6 +199,15 @@ Object.defineProperty(Kuchulem_GameTime_Time.prototype, "minutes", {
 Kuchulem_GameTime_Time.prototype.toMinutes = function() { 
     return this._hours * 60 + this._minutes;
 };
+
+/**
+ * Converts the time to a number of minutes (for comparison)
+ * 
+ * @returns {number}
+ */
+Kuchulem_GameTime_Time.prototype.toString = function() { 
+    return `${this._hours.padZero(2)}:${this._minutes.padZero(2)}`;
+};
 //#endregion
 
 //#region Sprite_Clock class definition
@@ -266,10 +280,8 @@ Sprite_Clock.prototype.updateBitmap = function() {
  */
 Sprite_Clock.prototype.redraw = function() {
     const text = this.timerClock();
-    const width = this.bitmap.width;
-    const height = this.bitmap.height;
     this.bitmap.clear();
-    this.bitmap.drawText(text, 0, 0, width, height, "left");
+    this.bitmap.drawText(text, 0, 0, 144, 48, "left");
 };
 
 /**
@@ -278,7 +290,7 @@ Sprite_Clock.prototype.redraw = function() {
  * @returns {string}
  */
 Sprite_Clock.prototype.timerClock = function() {
-    return `Day ${this._days} ${String(this._hours).padZero(2)}:${String(this._minutes).padZero(2)}`;
+    return String(`Day ${this._days} ${String(this._hours).padZero(2)}:${String(this._minutes).padZero(2)}`);
 };
 
 /**
@@ -653,17 +665,31 @@ Kuchulem_GameTime_Clock.prototype._saveTime = function() {
     const pluginName = "Kuchulem_GameTime";
     //#region Game object : $gameClock
     Kuchulem.createGameObject("$gameClock", new Kuchulem_GameTime_Clock(), true);
+    
+    $messageParsers.registerParser(new Kuchulem_Messages_Parser(
+        "Time", 
+        false, 
+        () => $gameClock.time().toString()
+    ));
+    $messageParsers.registerParser(new Kuchulem_Messages_Parser(
+        "RealTime",
+        false, 
+        () => $gameClock.realTime().toString()
+    ));
     //#endregion
 
     //#region Spriteset_Base extension
     /**
      * Extends the Spriteset_Base.prototype.createUpperLayer to add an event
      */
-    const Spriteset_Base_update = Spriteset_Base.prototype.update;
-    Spriteset_Base.prototype.update = function() {
+    const Spriteset_Base_createUpperLayer = Spriteset_Base.prototype.createUpperLayer;
+    Spriteset_Base.prototype.createUpperLayer = function() {
+        if (this._clock instanceof Sprite_Clock) {
+            this._clock.destroy();
+        }
         this._clock = new Sprite_Clock();
         this.addChild(this._clock);
-        Spriteset_Base_update.call(this, ...arguments);
+        Spriteset_Base_createUpperLayer.call(this, ...arguments);
     };
     //#endregion
 
