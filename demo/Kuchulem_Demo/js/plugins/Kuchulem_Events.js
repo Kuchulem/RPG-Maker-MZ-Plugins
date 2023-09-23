@@ -7,6 +7,9 @@ if (!Kuchulem) {
  * @plugindesc Adds and events publisher on specific methods of RMMZ core classes.
  * @author Kuchulem
  * 
+ * @base Kuchulem_Base
+ * @base Kuchulem_ArrayExtensions
+ * 
  * @help Kuchulem_Events.js
  * 
  * Triggers events on various core classes calls, like update or refresh of the
