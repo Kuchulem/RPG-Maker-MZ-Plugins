@@ -79,10 +79,6 @@ function Kuchulem() {
         if (addToSaves) {
             Kuchulem._gameObjectsToSave.push(name);
         }
-
-        const listeners = Kuchulem.gameObjectCreatedListeners(name);
-
-        listeners.forEach(l => l[1].call(l[2] ?? window, window[name]));
     };
 
     /**
