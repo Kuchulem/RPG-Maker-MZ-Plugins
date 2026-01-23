@@ -252,7 +252,7 @@ Kuchulem_Messages_Interpreter.prototype.parse = function(text) {
     const Game_Message_initialize_base = Game_Message.prototype.initialize;
     Game_Message.prototype.initialize = function() {
         Game_Message_initialize_base.call(this, ...arguments);
-        this._messagesInterpreter = new Kuchulem_Messages_Interpreter();
+        this._messagesInterpreter = $messageInterpreter;
     }
 
     const Game_Message_add_base = Game_Message.prototype.add;
@@ -262,6 +262,7 @@ Kuchulem_Messages_Interpreter.prototype.parse = function(text) {
     }
 
     //#region $messageParsers initialization
+    Kuchulem.createGameObject("$messageInterpreter", new Kuchulem_Messages_Interpreter());
     Kuchulem.createGameObject("$messageParsers", new Kuchulem_Messages_Parsers());
     //#endregion
 })();
